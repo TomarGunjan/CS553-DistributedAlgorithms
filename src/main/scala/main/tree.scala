@@ -5,7 +5,7 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import scala.collection.mutable
 
 case class Initiate()
-case class Probe(id: Int, parent: Int)
+case class Probe(id: Int, parentId: Int)
 case class Reply(id: Int, parent: Int)
 
 class Process(val id: Int, val system: ActorSystem, val neighbors: List[Int]) extends Actor {
@@ -17,8 +17,9 @@ class Process(val id: Int, val system: ActorSystem, val neighbors: List[Int]) ex
     case Initiate =>
       if (!visited) {
         visited = true
+        println(s"Process $id initiated")
         neighbors.foreach(neighbor => {
-          println(s"Process $id initiated and sending Probe to $neighbor")
+          println(s"Process $id sending Probe to $neighbor")
           ProcessRecord.map.get(neighbor).get ! Probe(id, -1)
         })
       }
@@ -32,6 +33,11 @@ class Process(val id: Int, val system: ActorSystem, val neighbors: List[Int]) ex
         if (children.isEmpty) {
           println(s"Process $id has no children, sending Reply to $parent")
           ProcessRecord.map.get(parent).get ! Reply(id, parent)
+        } else {
+          children.foreach(child => {
+            println(s"Process $id sending Probe to child $child")
+            ProcessRecord.map.get(child).get ! Probe(id, id)
+          })
         }
       } else {
         println(s"Process $id received duplicate Probe from $sid, sending Reply to $sid")
@@ -56,12 +62,12 @@ object ProcessRecord {
 
 object TreeAlgorithm extends App {
   val system = ActorSystem("TreeAlgorithmSystem")
-  val processP = system.actorOf(Props(new Process(0, system, List(3))), name = "processP")
-  val processQ = system.actorOf(Props(new Process(1, system, List(3))), name = "processQ")
-  val processR = system.actorOf(Props(new Process(2, system, List(4, 5))), name = "processR")
-  val processS = system.actorOf(Props(new Process(3, system, List(6, 7))), name = "processS")
-  val processT = system.actorOf(Props(new Process(4, system, List())), name = "processT")
-  val processU = system.actorOf(Props(new Process(5, system, List())), name = "processU")
+  val processP = system.actorOf(Props(new Process(0, system, List(2))), name = "processP")
+  val processQ = system.actorOf(Props(new Process(1, system, List(2))), name = "processQ")
+  val processR = system.actorOf(Props(new Process(2, system, List(0, 1, 3))), name = "processR")
+  val processS = system.actorOf(Props(new Process(3, system, List(2, 4, 5))), name = "processS")
+  val processT = system.actorOf(Props(new Process(4, system, List(3))), name = "processT")
+  val processU = system.actorOf(Props(new Process(5, system, List(3))), name = "processU")
 
   ProcessRecord.map.put(0, processP)
   ProcessRecord.map.put(1, processQ)
@@ -72,4 +78,6 @@ object TreeAlgorithm extends App {
 
   processP ! Initiate
   processQ ! Initiate
+  processT ! Initiate
+  processU ! Initiate
 }
