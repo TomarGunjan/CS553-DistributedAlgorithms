@@ -4,80 +4,90 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 
 import scala.collection.mutable
 
-case class Initiate()
-case class Probe(id: Int, parentId: Int)
-case class Reply(id: Int, parent: Int)
+case class Wave()
+case class Info()
+case class Decide()
 
-class Process(val id: Int, val system: ActorSystem, val neighbors: List[Int]) extends Actor {
-  var parent: Int = -1
-  var children: List[Int] = List()
-  var visited: Boolean = false
+class Process(val id: Int, val neighbors: List[Int]) extends Actor {
+  var received: Map[Int, Boolean] = neighbors.map(_ -> false).toMap
+  var parent: Option[Int] = None
 
-  def receive = {
-    case Initiate =>
-      if (!visited) {
-        visited = true
-        println(s"Process $id initiated")
-        neighbors.foreach(neighbor => {
-          println(s"Process $id sending Probe to $neighbor")
-          ProcessRecord.map.get(neighbor).get ! Probe(id, -1)
-        })
-      }
+  println(s"Process $id initialized with neighbors: $neighbors")
 
-    case Probe(sid, parentId) =>
-      if (!visited) {
-        visited = true
-        parent = parentId
-        children = neighbors.filter(_ != parentId)
-        println(s"Process $id received Probe from $sid, setting parent to $parentId")
-        if (children.isEmpty) {
-          println(s"Process $id has no children, sending Reply to $parent")
-          ProcessRecord.map.get(parent).get ! Reply(id, parent)
-        } else {
-          children.foreach(child => {
-            println(s"Process $id sending Probe to child $child")
-            ProcessRecord.map.get(child).get ! Probe(id, id)
-          })
-        }
-      } else {
-        println(s"Process $id received duplicate Probe from $sid, sending Reply to $sid")
-        sender ! Reply(id, parent)
-      }
+  def receive: Receive = {
+    case Wave =>
+      val sender = getSender(context.sender())
+      received += (sender -> true)
+      println(s"Process $id received Wave from Process $sender")
+      sendWave()
 
-    case Reply(cid, cparent) =>
-      if (cparent == id) {
-        children = children.filter(_ != cid)
-        println(s"Process $id received Reply from $cid")
-        if (children.isEmpty && parent != -1) {
-          println(s"Process $id has no more children, sending Reply to $parent")
-          ProcessRecord.map.get(parent).get ! Reply(id, parent)
+    case Info =>
+      val sender = getSender(context.sender())
+      println(s"Process $id received Info from Process $sender")
+      if (parent.contains(sender)) {
+        neighbors.foreach { neighbor =>
+          if (neighbor != sender) {
+            println(s"Process $id sending Info to Process $neighbor")
+            ProcessRecord.map(neighbor) ! Info
+          }
         }
       }
+
+    case Decide =>
+      println(s"Process $id decided")
+  }
+
+  def sendWave(): Unit = {
+    val unreceivedNeighbors = neighbors.filterNot(received)
+    if (unreceivedNeighbors.size == 1) {
+      val neighbor = unreceivedNeighbors.head
+      println(s"Process $id sending Wave to Process $neighbor")
+      ProcessRecord.map(neighbor) ! Wave
+      parent = Some(neighbor)
+      println(s"Process $id set Process $neighbor as parent")
+    } else if (unreceivedNeighbors.isEmpty) {
+      println(s"Process $id sending Decide to itself")
+      self ! Decide
+      neighbors.foreach { neighbor =>
+        if (neighbor != parent.getOrElse(-1)) {
+          println(s"Process $id sending Info to Process $neighbor")
+          ProcessRecord.map(neighbor) ! Info
+        }
+      }
+    }
+  }
+
+  def getSender(actorRef: ActorRef): Int = {
+    ProcessRecord.map.find(_._2 == actorRef).map(_._1).getOrElse(-1)
   }
 }
 
 object ProcessRecord {
-  val map = mutable.Map.empty[Int, ActorRef]
+  val map: mutable.Map[Int, ActorRef] = mutable.Map.empty
 }
 
 object TreeAlgorithm extends App {
   val system = ActorSystem("TreeAlgorithmSystem")
-  val processP = system.actorOf(Props(new Process(0, system, List(2))), name = "processP")
-  val processQ = system.actorOf(Props(new Process(1, system, List(2))), name = "processQ")
-  val processR = system.actorOf(Props(new Process(2, system, List(0, 1, 3))), name = "processR")
-  val processS = system.actorOf(Props(new Process(3, system, List(2, 4, 5))), name = "processS")
-  val processT = system.actorOf(Props(new Process(4, system, List(3))), name = "processT")
-  val processU = system.actorOf(Props(new Process(5, system, List(3))), name = "processU")
 
-  ProcessRecord.map.put(0, processP)
-  ProcessRecord.map.put(1, processQ)
-  ProcessRecord.map.put(2, processR)
-  ProcessRecord.map.put(3, processS)
-  ProcessRecord.map.put(4, processT)
-  ProcessRecord.map.put(5, processU)
+  val processP = system.actorOf(Props(new Process(0, List(2))), "processP")
+  val processQ = system.actorOf(Props(new Process(1, List(2))), "processQ")
+  val processR = system.actorOf(Props(new Process(2, List(0, 1, 3))), "processR")
+  val processS = system.actorOf(Props(new Process(3, List(2, 4, 5))), "processS")
+  val processT = system.actorOf(Props(new Process(4, List(3))), "processT")
+  val processU = system.actorOf(Props(new Process(5, List(3))), "processU")
 
-  processP ! Initiate
-  processQ ! Initiate
-  processT ! Initiate
-  processU ! Initiate
+  ProcessRecord.map ++= Map(
+    0 -> processP,
+    1 -> processQ,
+    2 -> processR,
+    3 -> processS,
+    4 -> processT,
+    5 -> processU
+  )
+
+  println("Sending initial Wave messages")
+  processP ! Wave
+  processQ ! Wave
+  processT ! Wave
+  processU ! Wave
 }
