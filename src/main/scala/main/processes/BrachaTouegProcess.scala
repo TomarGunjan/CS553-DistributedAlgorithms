@@ -1,18 +1,12 @@
-package main.brachaToueg
+package main.processes
 
-import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.actor.{Actor, ActorSystem}
+import akka.event.slf4j.Logger
+import main.utility.{Ack, Done, Grant, Initiate, Notify, ProcessRecord, Terminate}
 
 import scala.collection.mutable
-import scala.language.postfixOps
 
-
-case class Initiate()
-case class Notify(id:Int)
-case class Grant(id: Int)
-case class Done()
-case class Ack()
-
-class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int], val in : List[Int], val initiator:Boolean) extends Actor {
+class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int], val in : List[Int], val initiator:Boolean, val processRecord: ProcessRecord) extends Actor {
   var notifyFlag = false
   var free=false
   var requests = out.size
@@ -20,6 +14,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
   var ack = in.size
   var neighborNotify = mutable.Stack[Int]()
   var neighborGrant = mutable.Stack[Int]()
+  val logger = Logger(getClass.getName)
 
 
   override def preStart(): Unit = {
@@ -39,7 +34,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
         neighborNotify.push(nid)
         notifyProc()
       } else{
-        ProcessRecord.map.get(nid).get ! Done
+        processRecord.map.get(nid).get ! Done
       }
 
 
@@ -55,7 +50,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
           neighborGrant.push(nid)
           grant()
         }else {
-          ProcessRecord.map.get(nid).get ! Ack
+          processRecord.map.get(nid).get ! Ack
         }
       }
 
@@ -75,7 +70,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
         println("ack 0 at process "+id+" sending out acknowledgements")
         while(neighborGrant.nonEmpty){
           val sid = neighborGrant.pop()
-          ProcessRecord.map.get(sid).get ! Ack
+          processRecord.map.get(sid).get ! Ack
         }
       }
       sendDone()
@@ -86,7 +81,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
   private def grant(): Unit = {
     free=true
     in.foreach(sid =>
-      ProcessRecord.map.get(sid).get ! Grant(id)
+      processRecord.map.get(sid).get ! Grant(id)
     )
   }
 
@@ -94,7 +89,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
 
     notifyFlag=true
     out.foreach(sid =>
-      ProcessRecord.map(sid) ! Notify(id)
+      processRecord.map(sid) ! Notify(id)
     )
 
     if (requests==0){
@@ -108,7 +103,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
       println("process "+id+" sending out done")
       while(neighborNotify.nonEmpty){
         val sid = neighborNotify.pop()
-        ProcessRecord.map.get(sid).get ! Done
+        processRecord.map(sid) ! Done
       }
       if(initiator){
         if(free){
@@ -116,31 +111,10 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
         }else {
           println("Process id deadlocked")
         }
-
+        processRecord.map(-1) ! Terminate
       }
     }
   }
 
 
-}
-
-object ProcessRecord{
-  val map = mutable.Map.empty[Int, ActorRef]
-}
-
-object BrachaTouegAlgorithm2 extends App {
-  val system = ActorSystem("BrachaTouegSystem")
-  val process0 = system.actorOf(Props(new BrachaTouegProcess(0, system, List(1,3),List(), true)), name = "process0")
-  val process1 = system.actorOf(Props(new BrachaTouegProcess(1, system, List(2),List(0), false)), name = "process1")
-  val process2 = system.actorOf(Props(new BrachaTouegProcess(2, system, List(3),List(1),false)), name = "process2")
-  val process3 = system.actorOf(Props(new BrachaTouegProcess(3, system, List(),List(0,2),false)), name = "process3")
-
-
-  ProcessRecord.map.put(0, process0)
-  ProcessRecord.map.put(1, process1)
-  ProcessRecord.map.put(2,process2)
-  ProcessRecord.map.put(3,process3)
-
-  process0 ! Initiate
-  while(process0.)
 }
