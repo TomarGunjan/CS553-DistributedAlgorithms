@@ -2,11 +2,25 @@ package main.processes
 
 import akka.actor.{Actor, ActorSystem}
 import akka.event.slf4j.Logger
-import main.utility.{Ack, Done, Grant, Initiate, Notify, ProcessRecord, Terminate}
+import main.utility.{Ack, Done, Grant, Initiate, Notify, ProcessRecord, TerminateProcess, TerminateSystem}
 
 import scala.collection.mutable
 
-class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int], val in : List[Int], val initiator:Boolean, val processRecord: ProcessRecord) extends Actor {
+
+/**
+ *
+ * @param id
+ * @param system
+ * @param out
+ * @param in
+ * @param initiator
+ * @param processRecord
+ *
+ * Process class for BrachaToueg Algorithm
+ *
+ *
+ */
+class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Integer], val in : List[Integer], val initiator:Boolean, val processRecord: ProcessRecord) extends Actor {
   var notifyFlag = false
   var free=false
   var requests = out.size
@@ -19,17 +33,17 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
 
   override def preStart(): Unit = {
     super.preStart()
-    //neighbors.foreach(pid => context.watch(ProcessRecord.map.get(pid).get))
   }
 
 
   def receive = {
     case Initiate =>
-      println("Initiated by process "+id)
+      logger.debug("Initiated by process "+id)
       notifyProc()
 
+
     case Notify(nid) =>
-      println("notify received at "+id+" from "+nid)
+      logger.debug("Notify received at Process "+id+" from Process "+nid)
       if (!notifyFlag) {
         neighborNotify.push(nid)
         notifyProc()
@@ -38,11 +52,8 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
       }
 
 
-
-
-
     case Grant(nid) =>
-      println("grant received at "+id+" from "+nid)
+      logger.debug("grant received at "+id+" from "+nid)
       if (requests>0) {
         requests-=1
         if (requests==0){
@@ -58,14 +69,15 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
 
     case Done =>
       done-=1
-      println("received done at process "+id+". Total ack left "+done)
+      logger.debug("received done at process "+id+". Total ack left "+done)
       if (done==0){
         sendDone()
       }
 
+
     case Ack =>
       ack-=1
-      println("received acknowledgement at process "+id+". Total ack left "+ack)
+      logger.debug("received acknowledgement at process "+id+". Total ack left "+ack)
       if(ack==0){
         println("ack 0 at process "+id+" sending out acknowledgements")
         while(neighborGrant.nonEmpty){
@@ -78,6 +90,8 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
 
   }
 
+
+  //utility function to initiate Grant process when a process ha no more outgoing requests
   private def grant(): Unit = {
     free=true
     in.foreach(sid =>
@@ -85,6 +99,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
     )
   }
 
+  //utility function to initiate Notify process when a process first receives a Notify message
   private def notifyProc(): Unit = {
 
     notifyFlag=true
@@ -93,25 +108,27 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
     )
 
     if (requests==0){
-      println("no outgoing request at process "+id+" sending grants")
+      logger.debug("No outgoing request at process "+id+" sending grants")
       grant()
     }
   }
 
+
+  // utility function that checks if a process is good to send done to process it got message from
   private def sendDone(){
     if(done==0){
-      println("process "+id+" sending out done")
+      logger.debug("Process "+id+" sending out done")
       while(neighborNotify.nonEmpty){
         val sid = neighborNotify.pop()
         processRecord.map(sid) ! Done
       }
       if(initiator){
         if(free){
-          println("No Deadlock found")
+          logger.debug("No Deadlock found")
         }else {
-          println("Process id deadlocked")
+          logger.debug("Process is Deadlocked!!")
         }
-        processRecord.map(-1) ! Terminate
+        processRecord.map(-1) ! TerminateSystem
       }
     }
   }
