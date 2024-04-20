@@ -1,8 +1,9 @@
 package main
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
-
 import scala.collection.mutable
+import scala.io.Source
+import java.time.LocalTime
 
 case class Wave()
 case class Info()
@@ -12,82 +13,91 @@ class TreeProcess(val id: Int, val neighbors: List[Int]) extends Actor {
   var received: Map[Int, Boolean] = neighbors.map(_ -> false).toMap
   var parent: Option[Int] = None
 
-  println(s"Process $id initialized with neighbors: $neighbors")
+  println(s"${LocalTime.now()} - [$self] initialized with neighbors: $neighbors")
 
   def receive: Receive = {
     case Wave =>
-      val sender = getSender(context.sender())
-      received += (sender -> true)
-      println(s"Process $id received Wave from Process $sender")
+      val senderId = getSender(context.sender())
+      received += (senderId -> true)
+      println(s"${LocalTime.now()} - [$self] received Wave from [${context.sender()}]")
       sendWave()
 
     case Info =>
-      val sender = getSender(context.sender())
-      println(s"Process $id received Info from Process $sender")
-      if (parent.contains(sender)) {
+      val senderId = getSender(context.sender())
+      println(s"${LocalTime.now()} - [$self] received Info from [${context.sender()}]")
+      if (parent.contains(senderId)) {
         neighbors.foreach { neighbor =>
-          if (neighbor != sender) {
-            println(s"Process $id sending Info to Process $neighbor")
-            ProcessRecord.map(neighbor) ! Info
+          if (neighbor != senderId) {
+            println(s"${LocalTime.now()} - [$self] sending Info to [${TreeProcessRecord.map(neighbor)}]")
+            TreeProcessRecord.map(neighbor) ! Info
           }
         }
       }
 
     case Decide =>
-      println(s"Process $id decided")
+      println(s"${LocalTime.now()} - [$self] decided")
   }
 
   def sendWave(): Unit = {
     val unreceivedNeighbors = neighbors.filterNot(received)
     if (unreceivedNeighbors.size == 1) {
       val neighbor = unreceivedNeighbors.head
-      println(s"Process $id sending Wave to Process $neighbor")
-      ProcessRecord.map(neighbor) ! Wave
+      println(s"${LocalTime.now()} - [$self] sending Wave to [${TreeProcessRecord.map(neighbor)}]")
+      TreeProcessRecord.map(neighbor) ! Wave
       parent = Some(neighbor)
-      println(s"Process $id set Process $neighbor as parent")
+      println(s"${LocalTime.now()} - [$self] set [${TreeProcessRecord.map(neighbor)}] as parent")
     } else if (unreceivedNeighbors.isEmpty) {
-      println(s"Process $id sending Decide to itself")
+      println(s"${LocalTime.now()} - [$self] sending Decide to itself")
       self ! Decide
       neighbors.foreach { neighbor =>
         if (neighbor != parent.getOrElse(-1)) {
-          println(s"Process $id sending Info to Process $neighbor")
-          ProcessRecord.map(neighbor) ! Info
+          println(s"${LocalTime.now()} - [$self] sending Info to [${TreeProcessRecord.map(neighbor)}]")
+          TreeProcessRecord.map(neighbor) ! Info
         }
       }
     }
   }
 
   def getSender(actorRef: ActorRef): Int = {
-    ProcessRecord.map.find(_._2 == actorRef).map(_._1).getOrElse(-1)
+    TreeProcessRecord.map.find(_._2 == actorRef).map(_._1).getOrElse(-1)
   }
 }
 
-object ProcessRecord {
+object TreeProcessRecord {
   val map: mutable.Map[Int, ActorRef] = mutable.Map.empty
 }
 
 object TreeAlgorithm extends App {
-  val system = ActorSystem("TreeAlgorithmSystem")
+  val system = ActorSystem("TreeAlgorithm")
 
-  val processP = system.actorOf(Props(new TreeProcess(0, List(2))), "processP")
-  val processQ = system.actorOf(Props(new TreeProcess(1, List(2))), "processQ")
-  val processR = system.actorOf(Props(new TreeProcess(2, List(0, 1, 3))), "processR")
-  val processS = system.actorOf(Props(new TreeProcess(3, List(2, 4, 5))), "processS")
-  val processT = system.actorOf(Props(new TreeProcess(4, List(3))), "processT")
-  val processU = system.actorOf(Props(new TreeProcess(5, List(3))), "processU")
+  // Read the tree topology from the text file
+  val filename = "NetGraph_30-03-24-18-54-55.ngs.dot"
+  val topologyLines = Source.fromFile(filename).getLines().toList
 
-  ProcessRecord.map ++= Map(
-    0 -> processP,
-    1 -> processQ,
-    2 -> processR,
-    3 -> processS,
-    4 -> processT,
-    5 -> processU
-  )
+  // Parse the topology and create a map of process IDs and their neighbors
+  val processConfig: Map[Int, List[Int]] = topologyLines
+    .filter(line => line.contains("->"))
+    .flatMap { line =>
+      val parts = line.split("->")
+      if (parts.length == 2) {
+        val from = parts(0).trim.replaceAll("\"", "").toInt
+        val to = parts(1).split("\\[")(0).trim.replaceAll("\"", "").toInt // Remove weight attribute
+        List((from, to), (to, from))
+      } else {
+        List.empty
+      }
+    }
+    .groupBy(_._1)
+    .mapValues(_.map(_._2).toList)
+    .toMap
 
-  println("Sending initial Wave messages")
-  processP ! Wave
-  processQ ! Wave
-  processT ! Wave
-  processU ! Wave
+  // Create the actors dynamically based on the topology
+  processConfig.foreach { case (id, neighbors) =>
+    val process = system.actorOf(Props(new TreeProcess(id, neighbors)), s"process$id")
+    TreeProcessRecord.map += (id -> process)
+  }
+
+  println(s"${LocalTime.now()} - Sending initial Wave messages")
+  val leafNodes = processConfig.filter { case (_, neighbors) => neighbors.size == 1 }.keys
+  leafNodes.foreach(id => TreeProcessRecord.map(id) ! Wave)
 }

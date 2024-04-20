@@ -2,96 +2,100 @@ package main
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 
-import java.util
 import scala.collection.mutable
+import java.time.LocalTime
 import scala.language.postfixOps
-import scala.util.Random
-
 
 case class Initiate()
 case class Probe(id: Int)
 case class Report(id: Int)
 
-class TarryProcess(val id: Int, val system: ActorSystem, val neighbors: List[Int], val initiator:Boolean) extends Actor {
- var parent: Integer = -1
- var children: List[Int] = List()
- var visited: Boolean = false
+class TarryProcess(val id: Int, val neighbors: List[Int], val initiator: Boolean) extends Actor {
+  var parent: Int = -1
+  var children: mutable.Set[Int] = mutable.Set.empty
+  var visited: mutable.Set[Int] = mutable.Set.empty
 
- override def preStart(): Unit = {
-   super.preStart()
-   //neighbors.foreach(pid => context.watch(ProcessRecord.map.get(pid).get))
- }
+  def receive = {
+    case Initiate =>
+      println(s"${LocalTime.now()} - $self is the initiator")
+      if (neighbors.nonEmpty) {
+        val firstNeighbor = neighbors.head
+        forward(firstNeighbor)
+      }
 
+    case Probe(sid) =>
+      println(s"${LocalTime.now()} - $self received token from ${sender()}")
+      if (parent == -1) {
+        parent = sid
+      }
+      visited += sid
 
- def receive = {
-   case Initiate =>
-     println("process "+id+" started")
-     parent = -2
-     val first = neighbors.head
-     children = first:: children
-     TarryProcessRecord.map.get(first).get ! Probe(id)
+      if (children.size == neighbors.size - 1) {
+        if (!initiator) {
+          forward(parent)
+        }
+      } else {
+        val unvisitedNeighbors = neighbors.toSet -- visited -- children
+        if (unvisitedNeighbors.nonEmpty) {
+          val nextNeighbor = unvisitedNeighbors.head
+          forward(nextNeighbor)
+        } else if (sid != parent) {
+          forward(parent)
+        }
+      }
 
+      if (children.size == neighbors.size && initiator) {
+        println(s"${LocalTime.now()} - $self received token, traversal completed")
+        context.system.terminate()
+      }
+  }
 
-   case Probe(sid) =>
-     println("Probe received at "+id+" from "+sid)
-     if( parent== -1) {
-       parent = sid
-     }
-     if (children.size == neighbors.size-1) {
-       if(!initiator){
-       TarryProcessRecord.map.get(parent).get ! Probe(id)}
-     } else {
-       val rdmnums = Random.shuffle(neighbors)
-       val idx = findNextNeighbor(rdmnums)
-       if (idx != -1) {
-         TarryProcessRecord.map.get(idx).get ! Probe(id)
-         children = idx :: children
-       }
-//        ProcessRecord.map.get(idx).get ! Probe(id)
-     }
-     if(children.size == neighbors.size && initiator){
-       println("completed")
-     }
-
-
- }
-
- private def findNextNeighbor(neighbors: List[Int]): Int = {
-   neighbors.find(num => !children.contains(num) && num != parent) match {
-     case Some(idx) => idx
-     case None => -1
-   }
- }
+  def forward(neighborId: Int): Unit = {
+    if (!children.contains(neighborId)) {
+      TarryProcessRecord.map.get(neighborId) match {
+        case Some(actorRef) =>
+          println(s"${LocalTime.now()} - $self forwarding token to $actorRef")
+          actorRef ! Probe(id)
+          children += neighborId
+        case None =>
+          println(s"${LocalTime.now()} - $self Actor reference not found for process $neighborId")
+      }
+    }
+  }
 }
 
-object TarryProcessRecord{
- val map = mutable.Map.empty[Int, ActorRef]
+object TarryProcessRecord {
+  val map: mutable.Map[Int, ActorRef] = mutable.Map.empty
 }
 
-object TarrysAlgorithm2 extends App {
- val system = ActorSystem("TarrysAlgorithmSystem")
-//  val process1 = system.actorOf(Props(new Process(1, system, List(2, 4, 5), true)), name = "process1")
-//  val process2 = system.actorOf(Props(new Process(2, system, List(1, 3, 5),false)), name = "process2")
-//  val process3 = system.actorOf(Props(new Process(3, system, List(2),false)), name = "process3")
-//  val process4 = system.actorOf(Props(new Process(4, system, List(1, 5),false)), name = "process4")
-//  val process5 = system.actorOf(Props(new Process(5, system, List(1, 2, 4),false)), name = "process5")
-val process0 = system.actorOf(Props(new TarryProcess(0, system, List(1), true)), name = "process0")
-   val process1 = system.actorOf(Props(new TarryProcess(1, system, List(3,4,2), false)), name = "process1")
-   val process2 = system.actorOf(Props(new TarryProcess(2, system, List(5,6,1),false)), name = "process2")
-   val process3 = system.actorOf(Props(new TarryProcess(3, system, List(1,5),false)), name = "process3")
-   val process4 = system.actorOf(Props(new TarryProcess(4, system, List(1,6),false)), name = "process4")
-   val process5 = system.actorOf(Props(new TarryProcess(5, system, List(2,3),false)), name = "process5")
- val process6 = system.actorOf(Props(new TarryProcess(6, system, List(2,4),false)), name = "process6")
+object TarrysAlgorithm extends App {
+  val system = ActorSystem("TarrysAlgorithm")
 
+  val filename = "input.txt"
+  val topologyLines = scala.io.Source.fromFile(filename).getLines().toList
 
+  val processConfig: Map[Int, List[Int]] = topologyLines
+    .filter(line => line.contains("->"))
+    .flatMap { line =>
+      val parts = line.split("->")
+      if (parts.length == 2) {
+        val from = parts(0).trim.replaceAll("\"", "").toInt
+        val to = parts(1).split("\\[")(0).trim.replaceAll("\"", "").toInt
+        List((from, to), (to, from))
+      } else {
+        List.empty
+      }
+    }
+    .groupBy(_._1)
+    .mapValues(_.map(_._2).toList)
+    .toMap
 
- TarryProcessRecord.map.put(0, process0)
- TarryProcessRecord.map.put(1, process1)
- TarryProcessRecord.map.put(2,process2)
- TarryProcessRecord.map.put(3,process3)
- TarryProcessRecord.map.put(4,process4)
- TarryProcessRecord.map.put(5,process5)
- TarryProcessRecord.map.put(6,process6)
+  processConfig.foreach { case (id, neighbors) =>
+    val initiator = id == 1
+    val process = system.actorOf(Props(new TarryProcess(id, neighbors, initiator)), s"process$id")
+    TarryProcessRecord.map += (id -> process)
+  }
 
- process0 ! Initiate
+  println(s"${LocalTime.now()} - Initiating the algorithm")
+  TarryProcessRecord.map.get(1).foreach(_ ! Initiate)
 }
