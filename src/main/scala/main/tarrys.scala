@@ -12,7 +12,7 @@ case class Initiate()
 case class Probe(id: Int)
 case class Report(id: Int)
 
-class Process(val id: Int, val system: ActorSystem, val neighbors: List[Int], val initiator:Boolean) extends Actor {
+class TarryProcess(val id: Int, val system: ActorSystem, val neighbors: List[Int], val initiator:Boolean) extends Actor {
  var parent: Integer = -1
  var children: List[Int] = List()
  var visited: Boolean = false
@@ -29,7 +29,7 @@ class Process(val id: Int, val system: ActorSystem, val neighbors: List[Int], va
      parent = -2
      val first = neighbors.head
      children = first:: children
-     ProcessRecord.map.get(first).get ! Probe(id)
+     TarryProcessRecord.map.get(first).get ! Probe(id)
 
 
    case Probe(sid) =>
@@ -39,12 +39,12 @@ class Process(val id: Int, val system: ActorSystem, val neighbors: List[Int], va
      }
      if (children.size == neighbors.size-1) {
        if(!initiator){
-       ProcessRecord.map.get(parent).get ! Probe(id)}
+       TarryProcessRecord.map.get(parent).get ! Probe(id)}
      } else {
        val rdmnums = Random.shuffle(neighbors)
        val idx = findNextNeighbor(rdmnums)
        if (idx != -1) {
-         ProcessRecord.map.get(idx).get ! Probe(id)
+         TarryProcessRecord.map.get(idx).get ! Probe(id)
          children = idx :: children
        }
 //        ProcessRecord.map.get(idx).get ! Probe(id)
@@ -64,7 +64,7 @@ class Process(val id: Int, val system: ActorSystem, val neighbors: List[Int], va
  }
 }
 
-object ProcessRecord{
+object TarryProcessRecord{
  val map = mutable.Map.empty[Int, ActorRef]
 }
 
@@ -75,23 +75,23 @@ object TarrysAlgorithm2 extends App {
 //  val process3 = system.actorOf(Props(new Process(3, system, List(2),false)), name = "process3")
 //  val process4 = system.actorOf(Props(new Process(4, system, List(1, 5),false)), name = "process4")
 //  val process5 = system.actorOf(Props(new Process(5, system, List(1, 2, 4),false)), name = "process5")
-val process0 = system.actorOf(Props(new Process(0, system, List(1), true)), name = "process0")
-   val process1 = system.actorOf(Props(new Process(1, system, List(3,4,2), false)), name = "process1")
-   val process2 = system.actorOf(Props(new Process(2, system, List(5,6,1),false)), name = "process2")
-   val process3 = system.actorOf(Props(new Process(3, system, List(1,5),false)), name = "process3")
-   val process4 = system.actorOf(Props(new Process(4, system, List(1,6),false)), name = "process4")
-   val process5 = system.actorOf(Props(new Process(5, system, List(2,3),false)), name = "process5")
- val process6 = system.actorOf(Props(new Process(6, system, List(2,4),false)), name = "process6")
+val process0 = system.actorOf(Props(new TarryProcess(0, system, List(1), true)), name = "process0")
+   val process1 = system.actorOf(Props(new TarryProcess(1, system, List(3,4,2), false)), name = "process1")
+   val process2 = system.actorOf(Props(new TarryProcess(2, system, List(5,6,1),false)), name = "process2")
+   val process3 = system.actorOf(Props(new TarryProcess(3, system, List(1,5),false)), name = "process3")
+   val process4 = system.actorOf(Props(new TarryProcess(4, system, List(1,6),false)), name = "process4")
+   val process5 = system.actorOf(Props(new TarryProcess(5, system, List(2,3),false)), name = "process5")
+ val process6 = system.actorOf(Props(new TarryProcess(6, system, List(2,4),false)), name = "process6")
 
 
 
- ProcessRecord.map.put(0, process0)
- ProcessRecord.map.put(1, process1)
- ProcessRecord.map.put(2,process2)
- ProcessRecord.map.put(3,process3)
- ProcessRecord.map.put(4,process4)
- ProcessRecord.map.put(5,process5)
- ProcessRecord.map.put(6,process6)
+ TarryProcessRecord.map.put(0, process0)
+ TarryProcessRecord.map.put(1, process1)
+ TarryProcessRecord.map.put(2,process2)
+ TarryProcessRecord.map.put(3,process3)
+ TarryProcessRecord.map.put(4,process4)
+ TarryProcessRecord.map.put(5,process5)
+ TarryProcessRecord.map.put(6,process6)
 
  process0 ! Initiate
 }

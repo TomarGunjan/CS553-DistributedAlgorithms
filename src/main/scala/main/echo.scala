@@ -2,7 +2,7 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 
 case class Wave()
 
-class Process(val id: String, val neighbors: List[String], val initiator: Boolean) extends Actor {
+class EchoProcess(val id: String, val neighbors: List[String], val initiator: Boolean) extends Actor {
   var received: Int = 0
   var parent: Option[String] = None
 
@@ -52,9 +52,9 @@ class Process(val id: String, val neighbors: List[String], val initiator: Boolea
 object EchoAlgorithm extends App {
   val system = ActorSystem("EchoAlgorithmSystem")
 
-  val processP = system.actorOf(Props(new Process("p", List("s", "q", "t"), initiator = true)), "p")
-  val processS = system.actorOf(Props(new Process("s", List("p", "q", "t"), initiator = false)), "s")
-  val processQ = system.actorOf(Props(new Process("q", List("p", "s", "t", "r"), initiator = false)), "q")
-  val processT = system.actorOf(Props(new Process("t", List("p", "s", "q"), initiator = false)), "t")
-  val processR = system.actorOf(Props(new Process("r", List("q"), initiator = false)), "r")
+  val processP = system.actorOf(Props(new EchoProcess("p", List("s", "q", "t"), initiator = true)), "p")
+  val processS = system.actorOf(Props(new EchoProcess("s", List("p", "q", "t"), initiator = false)), "s")
+  val processQ = system.actorOf(Props(new EchoProcess("q", List("p", "s", "t", "r"), initiator = false)), "q")
+  val processT = system.actorOf(Props(new EchoProcess("t", List("p", "s", "q"), initiator = false)), "t")
+  val processR = system.actorOf(Props(new EchoProcess("r", List("q"), initiator = false)), "r")
 }

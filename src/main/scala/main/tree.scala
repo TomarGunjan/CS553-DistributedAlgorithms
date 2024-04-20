@@ -8,7 +8,7 @@ case class Wave()
 case class Info()
 case class Decide()
 
-class Process(val id: Int, val neighbors: List[Int]) extends Actor {
+class TreeProcess(val id: Int, val neighbors: List[Int]) extends Actor {
   var received: Map[Int, Boolean] = neighbors.map(_ -> false).toMap
   var parent: Option[Int] = None
 
@@ -69,12 +69,12 @@ object ProcessRecord {
 object TreeAlgorithm extends App {
   val system = ActorSystem("TreeAlgorithmSystem")
 
-  val processP = system.actorOf(Props(new Process(0, List(2))), "processP")
-  val processQ = system.actorOf(Props(new Process(1, List(2))), "processQ")
-  val processR = system.actorOf(Props(new Process(2, List(0, 1, 3))), "processR")
-  val processS = system.actorOf(Props(new Process(3, List(2, 4, 5))), "processS")
-  val processT = system.actorOf(Props(new Process(4, List(3))), "processT")
-  val processU = system.actorOf(Props(new Process(5, List(3))), "processU")
+  val processP = system.actorOf(Props(new TreeProcess(0, List(2))), "processP")
+  val processQ = system.actorOf(Props(new TreeProcess(1, List(2))), "processQ")
+  val processR = system.actorOf(Props(new TreeProcess(2, List(0, 1, 3))), "processR")
+  val processS = system.actorOf(Props(new TreeProcess(3, List(2, 4, 5))), "processS")
+  val processT = system.actorOf(Props(new TreeProcess(4, List(3))), "processT")
+  val processU = system.actorOf(Props(new TreeProcess(5, List(3))), "processU")
 
   ProcessRecord.map ++= Map(
     0 -> processP,
