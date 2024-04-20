@@ -71,7 +71,7 @@ object TarryProcessRecord {
 object TarrysAlgorithm extends App {
   val system = ActorSystem("TarrysAlgorithm")
 
-  val filename = "input.txt"
+  val filename = "inputTarry.dot"
   val topologyLines = scala.io.Source.fromFile(filename).getLines().toList
 
   val processConfig: Map[Int, List[Int]] = topologyLines
