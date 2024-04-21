@@ -1,44 +1,46 @@
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import scala.io.Source
+import java.time.LocalTime
 
 case class Wave()
 
-class Process(val id: String, val neighbors: List[String], val initiator: Boolean) extends Actor {
+class EchoProcess(val id: String, val neighbors: List[String], val initiator: Boolean) extends Actor {
   var received: Int = 0
   var parent: Option[String] = None
 
   if (initiator) {
-    println(s"Process $id is the initiator, sending Wave to neighbors: $neighbors")
+    println(s"${LocalTime.now()} - $self is the initiator, sending Wave to neighbors: $neighbors")
     neighbors.foreach(neighbor => context.actorSelection(s"/user/$neighbor") ! Wave())
   }
 
   def receive: Receive = {
     case Wave() =>
-      val sender = getSender(context.sender())
+      val senderId = getSender(context.sender())
       received += 1
-      println(s"Process $id received Wave from $sender, received count: $received")
+      println(s"${LocalTime.now()} - $self received Wave from $senderId, received count: $received")
 
       if (parent.isEmpty && !initiator) {
-        parent = Some(sender)
-        println(s"Process $id set $sender as parent")
+        parent = Some(senderId)
+        println(s"${LocalTime.now()} - $self set $senderId as parent")
 
         if (neighbors.size > 1) {
           neighbors.foreach { neighbor =>
-            if (neighbor != sender) {
-              println(s"Process $id sending Wave to $neighbor")
+            if (neighbor != senderId) {
+              println(s"${LocalTime.now()} - $self sending Wave to $neighbor")
               context.actorSelection(s"/user/$neighbor") ! Wave()
             }
           }
         } else {
-          println(s"Process $id sending Wave back to $sender")
-          context.actorSelection(s"/user/$sender") ! Wave()
+          println(s"${LocalTime.now()} - $self sending Wave back to $senderId")
+          context.actorSelection(s"/user/$senderId") ! Wave()
         }
       } else if (received == neighbors.size) {
         parent match {
           case Some(parentId) =>
-            println(s"Process $id received Wave from all neighbors, sending Wave to parent $parentId")
+            println(s"${LocalTime.now()} - $self received Wave from all neighbors, sending Wave to parent $parentId")
             context.actorSelection(s"/user/$parentId") ! Wave()
           case None =>
-            println(s"Process $id (initiator) received Wave from all neighbors, deciding")
+            println(s"${LocalTime.now()} - $self (initiator) received Wave from all neighbors, deciding")
             context.stop(self)
         }
       }
@@ -52,9 +54,30 @@ class Process(val id: String, val neighbors: List[String], val initiator: Boolea
 object EchoAlgorithm extends App {
   val system = ActorSystem("EchoAlgorithmSystem")
 
-  val processP = system.actorOf(Props(new Process("p", List("s", "q", "t"), initiator = true)), "p")
-  val processS = system.actorOf(Props(new Process("s", List("p", "q", "t"), initiator = false)), "s")
-  val processQ = system.actorOf(Props(new Process("q", List("p", "s", "t", "r"), initiator = false)), "q")
-  val processT = system.actorOf(Props(new Process("t", List("p", "s", "q"), initiator = false)), "t")
-  val processR = system.actorOf(Props(new Process("r", List("q"), initiator = false)), "r")
+  // Read the input file to get process IDs and neighbors
+  val filename = "/Users/dhruv/Desktop/553/CS553-DistributedAlgorithms/src/main/scala/main/inputEcho.dot"
+  val topologyLines = Source.fromFile(filename).getLines().toList
+
+  // Parse the topology and create actors dynamically
+  val processConfig: Map[String, List[String]] = topologyLines
+    .filter(line => line.contains("->"))
+    .flatMap { line =>
+      val parts = line.split("->")
+      if (parts.length == 2) {
+        val from = parts(0).trim.replaceAll("\"", "")
+        val to = parts(1).split("\\[")(0).trim.replaceAll("\"", "") // Remove weight attribute
+        List((from, to), (to, from))
+      } else {
+        List.empty
+      }
+    }
+    .groupBy(_._1)
+    .mapValues(_.map(_._2).toList)
+    .toMap
+
+  // Create actors dynamically based on the topology
+  processConfig.foreach { case (id, neighbors) =>
+    val initiator = id == "1" // Assuming "p" is the initiator
+    val process = system.actorOf(Props(new EchoProcess(id, neighbors, initiator)), id)
+  }
 }
