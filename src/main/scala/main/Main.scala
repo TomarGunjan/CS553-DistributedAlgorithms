@@ -2,7 +2,7 @@ package main
 
 import scala.io.StdIn
 import akka.event.slf4j.Logger
-import main.algorithms.{BrachaTouegAlgorithm}
+import main.algorithms.{BrachaTouegAlgorithm, TarrysAlgorithm, TreeAlgorithm, EchoAlgorithm}
 
 object Main extends App {
     val logger = Logger("Main")

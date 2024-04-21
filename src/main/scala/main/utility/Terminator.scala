@@ -10,21 +10,28 @@ import akka.actor.{Actor, ActorSystem}
  * Utility class for terminating the Actor system.
  * Based on the message type. initiates system or process termination
  */
-class Terminator(val system: ActorSystem) extends Actor {
-
+class Terminator(val system: ActorSystem) extends Actor with MessageTypes {
   override def receive: Receive = {
     case TerminateSystem =>
       println("Terminating system")
       system.terminate()
+    case TerminateProcess(processRecord: ProcessRecord) =>
+      processRecord.map.foreach { case (id, actorRef) =>
+        if (id != -1) {
+          system.stop(actorRef)
+        }
+      }
+    case TerminateTarry =>
+      println("Terminating Tarry's algorithm")
+      system.terminate()
 
-    case TerminateProcess(processRecord: ProcessRecord) =>{
-        processRecord.map.foreach(process=>{
-          if(process._1 != -1){
-            system.stop(process._2)
+    case TreeTerminate =>
+      println("Terminating tree algorithm")
+      system.terminate()
 
-          }
-      })
-    }
+    case EchoTerminate() =>
+      println("Terminating Echo algorithm")
+      system.terminate()
   }
 
 }

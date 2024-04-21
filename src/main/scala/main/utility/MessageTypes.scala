@@ -14,4 +14,15 @@ case class Ack() extends MessageTypes
 case class TerminateProcess(processRecord: ProcessRecord) extends MessageTypes
 case class TerminateSystem() extends MessageTypes
 
+case class InitiateTarry() extends MessageTypes
+case class TarryProbe(id: Int) extends MessageTypes
+case object TerminateTarry extends MessageTypes
+
+case class Wave() extends MessageTypes
+case class Info() extends MessageTypes
+case class Decide() extends MessageTypes
+case object TreeTerminate extends MessageTypes
+
+case class EchoWave() extends MessageTypes
+case class EchoTerminate() extends MessageTypes
 
