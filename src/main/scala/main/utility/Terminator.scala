@@ -16,7 +16,6 @@ class Terminator(val system: ActorSystem) extends Actor {
     case TerminateSystem =>
       println("Terminating system")
       system.terminate()
-      Lock.occupied=false
 
     case TerminateProcess(processRecord: ProcessRecord) =>{
         processRecord.map.foreach(process=>{
