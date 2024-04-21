@@ -16,5 +16,6 @@ lazy val root = (project in file("."))
       "com.typesafe" % "config" % "1.2.1",
       "com.typesafe.akka" %% "akka-testkit" % "2.6.18" % Test,
       "org.scalatest" %% "scalatest" % "3.2.9" % Test
+
 )
   )
