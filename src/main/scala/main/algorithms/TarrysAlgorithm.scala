@@ -7,6 +7,7 @@ import main.utility.{InitiateTarry, MessageTypes, ProcessRecord, Terminator, Top
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.Random
 
 object TarrysAlgorithm extends MessageTypes {
   val log = Logger(getClass.getName)
@@ -26,20 +27,28 @@ object TarrysAlgorithm extends MessageTypes {
     val filename = ApplicationProperties.tarryInputFile
     val processConfig: Map[String, List[String]] = TopologyReader.readTopology(filename)
 
-    processConfig.foreach { case (id, neighbors) =>
-      val initiator = id == "1" // Assuming process with ID "1" is the initiator
-      val process = system.actorOf(Props(new TarryProcess(id.toInt, neighbors.map(_.toInt), initiator, processRecord)), s"process$id")
-      processRecord.map += (id.toInt -> process)
-    }
+    // Get all process IDs and convert them to integers
+    val allProcessIds = processConfig.keys.map(_.toInt).toList
 
+    // Randomly select the initiator process ID from the list of process IDs
+    val randomInitiatorId = Random.shuffle(allProcessIds).head
+    log.info(s"Randomly selected initiator ID: $randomInitiatorId")
+
+    processConfig.foreach { case (id, neighbors) =>
+      val neighborList = neighbors.mkString(", ") // Convert neighbors list to a string for logging
+      val initiator = id.toInt == randomInitiatorId
+      val processActor = system.actorOf(Props(new TarryProcess(id.toInt, neighbors.map(_.toInt), initiator, processRecord)), s"process$id")
+      log.info(s"Created TarryProcess actor for Process $id with neighbors: $neighborList, Actor: $processActor")
+      processRecord.map += (id.toInt -> processActor)
+    }
 
     // Create a Terminator actor to handle the termination of the algorithm
     val terminator = system.actorOf(Props(new Terminator(system)), "terminator")
     processRecord.map += (-1 -> terminator)
 
     log.info("Initiating the algorithm")
-    // Send an InitiateTarry message to the initiator process (ID 1)
-    processRecord.map.get(1).foreach(_ ! InitiateTarry)
+    // Send an InitiateTarry message to the randomly selected initiator process
+    processRecord.map.get(randomInitiatorId).foreach(_ ! InitiateTarry)
 
     // Wait for the algorithm to terminate or timeout after 30 seconds
     Await.ready(system.whenTerminated, 30.seconds)
