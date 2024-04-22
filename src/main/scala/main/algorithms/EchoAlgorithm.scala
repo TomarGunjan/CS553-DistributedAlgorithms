@@ -7,7 +7,7 @@ import main.utility.{MessageTypes, Terminator, ApplicationProperties, TopologyRe
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.io.Source
+import scala.util.Random
 
 object EchoAlgorithm extends MessageTypes {
   val log = Logger(getClass.getName)
@@ -25,9 +25,17 @@ object EchoAlgorithm extends MessageTypes {
     val filename = ApplicationProperties.echoInputFile
     val processConfig: Map[String, List[String]] = TopologyReader.readTopology(filename)
 
+    // Get all process IDs and convert them to integers
+    val allProcessIds = processConfig.keys.map(_.toInt).toList
+
+    // Randomly select the initiator process ID from the list of process IDs
+    val randomInitiatorId = Random.shuffle(allProcessIds).head
+    log.info(s"Randomly selected initiator ID: $randomInitiatorId")
+
     processConfig.foreach { case (id, neighbors) =>
-      val initiator = id == "1" // Assuming process with ID "1" is the initiator
-      val process = system.actorOf(Props(new EchoProcess(id, neighbors, initiator)), id)
+      val neighborList = neighbors.mkString(", ") // Convert neighbors list to a string for logging
+      val processActor = system.actorOf(Props(new EchoProcess(id, neighbors, id.toInt == randomInitiatorId)), id)
+      log.info(s"Created EchoProcess actor for Process $id with neighbors: $neighborList, Actor: $processActor")
     }
 
     // Create a Terminator actor to handle the termination of the algorithm

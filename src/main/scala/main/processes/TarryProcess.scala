@@ -5,6 +5,7 @@ import akka.event.slf4j.Logger
 import main.utility.{InitiateTarry, TarryProbe, TerminateTarry, MessageTypes, ProcessRecord}
 
 import scala.collection.mutable
+import scala.util.Random
 
 /**
  * Actor representing a process in Tarry's algorithm.
@@ -48,8 +49,8 @@ class TarryProcess(val id: Int, val neighbors: List[Int], val initiator: Boolean
       } else {
         val unsentNeighbors = neighbors.filter(n => !sent.contains(n)) // Find neighbors to which tokens haven't been sent
         if (unsentNeighbors.nonEmpty) {
-          val nextNeighbor = unsentNeighbors.head
-          forward(nextNeighbor) // Forward the token to the next unsent neighbor
+          val nextNeighbor = Random.shuffle(unsentNeighbors).head // Randomly select the next unsent neighbor
+          forward(nextNeighbor) // Forward the token to the randomly selected unsent neighbor
         } else if (sid != parent) {
           forward(parent) // Forward the token back to the parent if all neighbors have been sent tokens
         }
