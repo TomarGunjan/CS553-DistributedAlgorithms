@@ -63,6 +63,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
         }else {
           processRecord.map.get(nid).get ! Ack
         }
+        sendAck()
       }
 
 
@@ -78,13 +79,7 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
     case Ack =>
       ack-=1
       logger.debug("received acknowledgement at process "+id+". Total ack left "+ack)
-      if(ack==0){
-        println("ack 0 at process "+id+" sending out acknowledgements")
-        while(neighborGrant.nonEmpty){
-          val sid = neighborGrant.pop()
-          processRecord.map.get(sid).get ! Ack
-        }
-      }
+      sendAck()
       sendDone()
 
 
@@ -129,6 +124,17 @@ class BrachaTouegProcess(val id: Int, val system: ActorSystem, val out: List[Int
           logger.debug("Process is Deadlocked!!")
         }
         processRecord.map(-1) ! TerminateSystem
+      }
+    }
+  }
+
+  // utility function that checks if a process is good to send ack
+  private def sendAck(): Unit = {
+    if(ack==0){
+      println("ack 0 at process "+id+" sending out acknowledgements")
+      while(neighborGrant.nonEmpty){
+        val sid = neighborGrant.pop()
+        processRecord.map.get(sid).get ! Ack
       }
     }
   }

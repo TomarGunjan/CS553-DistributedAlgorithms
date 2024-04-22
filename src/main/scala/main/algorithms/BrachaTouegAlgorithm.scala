@@ -19,7 +19,6 @@ object BrachaTouegAlgorithm{
 
 
   def main(){
-    logger.info("Starting the Algorithm Demo")
     //Running Scenario 1 with No Deadlock
     scenario1NoDeadlock()
     //Running scenario 2 with Deadlock
