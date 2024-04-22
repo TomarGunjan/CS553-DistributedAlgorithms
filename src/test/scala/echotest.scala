@@ -2,6 +2,8 @@ package main
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
+import main.processes.EchoProcess
+import main.utility.{EchoWave, EchoTerminator}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
