@@ -22,4 +22,29 @@ object TopologyReader {
       .mapValues(_.map(_._2).toList)
       .toMap
   }
-}
+
+  def hasCycle(processConfig: Map[String, List[String]]): Boolean = {
+    val visited = collection.mutable.Set[String]()
+
+    def dfs(node: String, parent: String): Boolean = {
+      visited += node
+
+      processConfig(node).foreach { neighbor =>
+        if (neighbor == parent) {
+          // Skip the parent node
+        } else if (visited.contains(neighbor)) {
+          // Found a cycle
+          return true
+        } else {
+          if (dfs(neighbor, node)) return true
+        }
+      }
+
+      false
+    }
+
+    processConfig.keys.exists { node =>
+      if (!visited.contains(node)) dfs(node, "")
+      else false
+    }
+  }}
