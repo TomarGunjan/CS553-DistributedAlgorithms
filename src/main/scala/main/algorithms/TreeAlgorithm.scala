@@ -19,6 +19,11 @@ object TreeAlgorithm extends MessageTypes {
     val filename = ApplicationProperties.treeInputFile
     val processConfig: Map[String, List[String]] = TopologyReader.readTopology(filename)
 
+    if (TopologyReader.hasCycle(processConfig)) {
+      log.error("The input topology contains a cycle. Terminating the algorithm.")
+      system.terminate()
+      return
+    }
     processConfig.foreach { case (id, neighbors) =>
       val process = system.actorOf(Props(new TreeProcess(id.toInt, neighbors.map(_.toInt), processRecord)), s"process$id")
       processRecord.map += (id.toInt -> process)
