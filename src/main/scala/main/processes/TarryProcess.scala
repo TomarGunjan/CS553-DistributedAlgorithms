@@ -47,16 +47,16 @@ class TarryProcess(val id: Int, val neighbors: List[Int], val initiator: Boolean
         log.info(s"$self received token through all channels, traversal completed")
         processRecord.map(-1) ! TerminateTarry // Send termination message to the terminator
       } else {
-        val unsentNeighbors = neighbors.filter(n => !sent.contains(n)) // Find neighbors to which tokens haven't been sent
+        val unsentNeighbors = neighbors.filter(n => !sent.contains(n) && n != sid) // Find unsent neighbors excluding the sender
         if (unsentNeighbors.nonEmpty) {
           val nextNeighbor = Random.shuffle(unsentNeighbors).head // Randomly select the next unsent neighbor
           forward(nextNeighbor) // Forward the token to the randomly selected unsent neighbor
-        } else if (sid != parent) {
-          forward(parent) // Forward the token back to the parent if all neighbors have been sent tokens
+        } else if (tokensSent == neighbors.size) {
+          // Forward the token back to the parent only if all neighbors have been sent tokens
+          forward(parent)
         }
       }
   }
-
   /**
    * Forwards the token to the specified neighbor.
    *
