@@ -47,4 +47,5 @@ object TopologyReader {
       if (!visited.contains(node)) dfs(node, "")
       else false
     }
-  }}
+  }
+}
