@@ -4,9 +4,9 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import main.processes.TreeProcess
-import main.utility.{Wave, Info, Decide, TreeTerminate, ProcessRecord}
+import main.utility.{Wave, Info, Decide, TreeTerminate, ProcessRecord, TopologyReader}
 
-class TreeProcessSpec extends TestKit(ActorSystem("TreeProcessSpec"))
+class TreeTest extends TestKit(ActorSystem("TreeTest"))
   with ImplicitSender
   with AnyWordSpecLike
   with Matchers
@@ -55,6 +55,37 @@ class TreeProcessSpec extends TestKit(ActorSystem("TreeProcessSpec"))
 
       // Verify the expected behavior
       terminatorProbe.expectMsg(TreeTerminate)
+    }
+
+    "detect a cycle in the topology" in {
+      val processConfig = Map(
+        "0" -> List("1", "2"),
+        "1" -> List("0", "3"),
+        "2" -> List("0", "3"),
+        "3" -> List("1", "2")
+      )
+
+      TopologyReader.hasCycle(processConfig) shouldBe true
+    }
+
+    "not detect a cycle in a valid topology" in {
+      val processConfig = Map(
+        "0" -> List("1", "2"),
+        "1" -> List("0", "5"),
+        "2" -> List("0", "10"),
+        "3" -> List("7", "8", "13"),
+        "4" -> List("8", "10", "11"),
+        "5" -> List("1"),
+        "7" -> List("3", "9"),
+        "8" -> List("3", "4", "12"),
+        "9" -> List("7"),
+        "10" -> List("2", "4"),
+        "11" -> List("4"),
+        "12" -> List("8"),
+        "13" -> List("3")
+      )
+
+      TopologyReader.hasCycle(processConfig) shouldBe false
     }
   }
 }
