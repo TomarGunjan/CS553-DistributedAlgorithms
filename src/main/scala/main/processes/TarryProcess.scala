@@ -18,20 +18,17 @@ import scala.util.Random
 class TarryProcess(val id: Int, val neighbors: List[Int], val initiator: Boolean, val processRecord: ProcessRecord)
   extends Actor {
   val log = Logger(getClass.getName)
-  var parent: Int = -1 // The parent process ID
-  var tokensSent: Int = 0 // Counter for tokens sent
-  var tokensReceived: Int = 0 // Counter for tokens received
-  var sent: mutable.Set[Int] = mutable.Set.empty // Set of neighbor IDs to which tokens have been sent
+  var parent: Int = -1
+  var tokensSent: Int = 0
+  var tokensReceived: Int = 0
+  var sent: mutable.Set[Int] = mutable.Set.empty
 
-  /**
-   * Receives messages and performs actions based on the message type.
-   */
   def receive: Receive = {
     case InitiateTarry =>
       log.info(s"$self is the initiator")
       if (neighbors.nonEmpty) {
         val firstNeighbor = neighbors.head
-        forward(firstNeighbor) // Forward the token to the first neighbor
+        forward(firstNeighbor)
       }
 
     case TarryProbe(sid) =>
@@ -39,36 +36,39 @@ class TarryProcess(val id: Int, val neighbors: List[Int], val initiator: Boolean
       tokensReceived += 1
 
       if (parent == -1) {
-        parent = sid // Set the sender as the parent if no parent is assigned yet
+        parent = sid
       }
 
-      if (initiator && tokensSent == neighbors.size && tokensReceived == neighbors.size) {
-        // If this process is the initiator and has sent and received tokens through all channels
-        log.info(s"$self received token through all channels, traversal completed")
-        processRecord.map(-1) ! TerminateTarry // Send termination message to the terminator
+      if (neighbors.forall(sent.contains)) {
+        // All neighbors have been visited
+        if (initiator) {
+          // Initiator terminates the algorithm
+          log.info(s"$self received token through all channels, traversal completed")
+          processRecord.map(-1) ! TerminateTarry
+        } else {
+          // Non-initiator sends token back to parent
+          forward(parent)
+        }
       } else {
-        val unsentNeighbors = neighbors.filter(n => !sent.contains(n) && n != sid) // Find unsent neighbors excluding the sender
+        // Choose the next unsent neighbor according to the rules
+        val unsentNeighbors = neighbors.filter(n => !sent.contains(n) && n != parent)
         if (unsentNeighbors.nonEmpty) {
-          val nextNeighbor = Random.shuffle(unsentNeighbors).head // Randomly select the next unsent neighbor
-          forward(nextNeighbor) // Forward the token to the randomly selected unsent neighbor
-        } else if (tokensSent == neighbors.size) {
-          // Forward the token back to the parent only if all neighbors have been sent tokens
+          val nextNeighbor = unsentNeighbors.head
+          forward(nextNeighbor)
+        } else {
+          // No unsent neighbors, send token back to parent
           forward(parent)
         }
       }
   }
-  /**
-   * Forwards the token to the specified neighbor.
-   *
-   * @param neighborId The ID of the neighbor to forward the token to.
-   */
+
   def forward(neighborId: Int): Unit = {
     processRecord.map.get(neighborId) match {
       case Some(actorRef) =>
         log.info(s"$self forwarding token to $actorRef")
-        actorRef ! TarryProbe(id) // Send a TarryProbe message to the neighbor
+        actorRef ! TarryProbe(id)
         tokensSent += 1
-        sent += neighborId // Add the neighbor ID to the sent set
+        sent += neighborId
       case None =>
         log.error(s"$self Actor reference not found for process $neighborId")
     }
