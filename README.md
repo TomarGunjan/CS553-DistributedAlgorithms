@@ -1,10 +1,10 @@
 ## CS553 Distributed Agorithms Project
 ### Submitted By -
 1. Aakash Dasgupta
-2. Dhruv Agarwal
+2. Dhruv Agarwal - 
 3. Gunjan Tomar - 674659382
 ## Overview
-This repository showcases the implementation of various distributed algorithms, including Snapshot, Wave, and Deadlock Detection. It executes distributed algorithms on graphs created by [NetGameSim](https://github.com/0x1DOCD00D/NetGameSim?tab=readme-ov-file).
+This repository showcases the implementation of various distributed algorithms, including Snapshot, Wave, and Deadlock Detection. It executes distributed algorithms on graphs created by [NetGameSim](https://github.com/0x1DOCD00D/NetGameSim?tab=readme-ov-file). Made a menu driven program for 6 distributed algorithms.
 ### 1. Snapshot Algorithms 
 The Snapshot Algorithm, refers to the process of capturing a consistent global state of the system at a specific point in time. It allows processes to record their local states and messages exchanged, facilitating the observation of the distributed system's behavior for debugging and analysis purposes.
 #### a) Lai-Yang Algorithm
@@ -30,9 +30,6 @@ The Bracha-Toueg Algorithm is employed for deadlock detection in distributed sys
 
 
 ## About Framework
-
-
-## Workflow
 Diagram and Explanation
 ```bash
 ├── README.md
@@ -81,6 +78,10 @@ Diagram and Explanation
             ├── chandyLamportTest.scala
             └── laiYangTest.scala
 ```
+### Description of main folders
+
+### Description of main files
+
 
 ## How to run project
 ### From Intellij IDE
@@ -105,17 +106,8 @@ Steps to Follow :
 3. Run following command "**sbt clean compile run**"
    
 
-   
+## Test Data
+Example for Tree algo from NetGameSim
 
-## Requirements fulfilled for the course project
-1. Generated a dot file from NetGameSim containing information about node connections.
-2. Used aforementioned graph to spawn a graph of Akka Actors.
-3. 
-## Clone Instructions
-## Components of the Project
-The Project has been divided into interconnected modules.
-1. The algorithms package contains the overarching logic of the corresponding algorithm.
-2. The processes package contains the processes pertaining to each algorithm.
-3. The utility folder contains application wide and program specific dependencies.
-## Features
-## Discussion
+## Output
+Screenshot
