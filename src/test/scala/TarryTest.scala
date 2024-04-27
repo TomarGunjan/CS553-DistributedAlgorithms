@@ -6,12 +6,20 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import main.processes.TarryProcess
 import main.utility.{InitiateTarry, TarryProbe, TerminateTarry, ProcessRecord}
 
-class TarryProcessSpec extends TestKit(ActorSystem("TarryProcessSpec"))
+/**
+ * Test suite for the TarryProcess actor.
+ * Extends the TestKit class to provide an actor system for testing.
+ * Mixes in ImplicitSender, AnyWordSpecLike, Matchers, and BeforeAndAfterAll traits.
+ */
+class TarryTest extends TestKit(ActorSystem("TarryTest"))
   with ImplicitSender
   with AnyWordSpecLike
   with Matchers
   with BeforeAndAfterAll {
 
+  /**
+   * Shutdown the actor system after all tests have finished.
+   */
   override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
   }
@@ -21,18 +29,12 @@ class TarryProcessSpec extends TestKit(ActorSystem("TarryProcessSpec"))
       val processRecord = new ProcessRecord
 
       // Create TarryProcess actors based on the topology
-      val process1 = system.actorOf(Props(new TarryProcess(1, List(2, 3, 4), initiator = true, processRecord)), "process1")
-      val process2 = system.actorOf(Props(new TarryProcess(2, List(1, 5, 6), initiator = false, processRecord)), "process2")
-      val process3 = system.actorOf(Props(new TarryProcess(3, List(1, 5), initiator = false, processRecord)), "process3")
-      val process4 = system.actorOf(Props(new TarryProcess(4, List(1, 6), initiator = false, processRecord)), "process4")
-      val process5 = system.actorOf(Props(new TarryProcess(5, List(2, 3), initiator = false, processRecord)), "process5")
-      val process6 = system.actorOf(Props(new TarryProcess(6, List(2, 4), initiator = false, processRecord)), "process6")
+      val process1 = system.actorOf(Props(new TarryProcess(1, List(2, 3), initiator = true, processRecord)), "process1_test1")
+      val process2 = system.actorOf(Props(new TarryProcess(2, List(1), initiator = false, processRecord)), "process2_test1")
+      val process3 = system.actorOf(Props(new TarryProcess(3, List(1), initiator = false, processRecord)), "process3_test1")
 
       // Set up the ProcessRecord
-      processRecord.map ++= Map(
-        1 -> process1, 2 -> process2, 3 -> process3,
-        4 -> process4, 5 -> process5, 6 -> process6
-      )
+      processRecord.map ++= Map(1 -> process1, 2 -> process2, 3 -> process3)
 
       // Create a TestProbe for the terminator
       val terminatorProbe = TestProbe()
@@ -41,7 +43,52 @@ class TarryProcessSpec extends TestKit(ActorSystem("TarryProcessSpec"))
       // Send InitiateTarry message to the initiator (process1)
       process1 ! InitiateTarry
 
-      // Verify the expected behavior
+      // Verify that the terminator receives the TerminateTarry message
+      terminatorProbe.expectMsg(TerminateTarry)
+    }
+
+    "perform token traversal and terminate for a linear topology" in {
+      val processRecord = new ProcessRecord
+
+      // Create TarryProcess actors based on the topology
+      val process1 = system.actorOf(Props(new TarryProcess(1, List(2), initiator = true, processRecord)), "process1_test2")
+      val process2 = system.actorOf(Props(new TarryProcess(2, List(1, 3), initiator = false, processRecord)), "process2_test2")
+      val process3 = system.actorOf(Props(new TarryProcess(3, List(2), initiator = false, processRecord)), "process3_test2")
+
+      // Set up the ProcessRecord
+      processRecord.map ++= Map(1 -> process1, 2 -> process2, 3 -> process3)
+
+      // Create a TestProbe for the terminator
+      val terminatorProbe = TestProbe()
+      processRecord.map += (-1 -> terminatorProbe.ref)
+
+      // Send InitiateTarry message to the initiator (process1)
+      process1 ! InitiateTarry
+
+      // Verify that the terminator receives the TerminateTarry message
+      terminatorProbe.expectMsg(TerminateTarry)
+    }
+
+    "perform token traversal and terminate for a ring topology" in {
+      val processRecord = new ProcessRecord
+
+      // Create TarryProcess actors based on the topology
+      val process1 = system.actorOf(Props(new TarryProcess(1, List(2, 4), initiator = true, processRecord)), "process1_test3")
+      val process2 = system.actorOf(Props(new TarryProcess(2, List(1, 3), initiator = false, processRecord)), "process2_test3")
+      val process3 = system.actorOf(Props(new TarryProcess(3, List(2, 4), initiator = false, processRecord)), "process3_test3")
+      val process4 = system.actorOf(Props(new TarryProcess(4, List(1, 3), initiator = false, processRecord)), "process4_test3")
+
+      // Set up the ProcessRecord
+      processRecord.map ++= Map(1 -> process1, 2 -> process2, 3 -> process3, 4 -> process4)
+
+      // Create a TestProbe for the terminator
+      val terminatorProbe = TestProbe()
+      processRecord.map += (-1 -> terminatorProbe.ref)
+
+      // Send InitiateTarry message to the initiator (process1)
+      process1 ! InitiateTarry
+
+      // Verify that the terminator receives the TerminateTarry message
       terminatorProbe.expectMsg(TerminateTarry)
     }
   }

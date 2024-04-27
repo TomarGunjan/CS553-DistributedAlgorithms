@@ -5,7 +5,6 @@ import akka.event.slf4j.Logger
 import main.utility.{InitiateTarry, TarryProbe, TerminateTarry, MessageTypes, ProcessRecord}
 
 import scala.collection.mutable
-import scala.util.Random
 
 /**
  * Actor representing a process in Tarry's algorithm.
@@ -21,7 +20,7 @@ class TarryProcess(val id: Int, val neighbors: List[Int], val initiator: Boolean
   var parent: Int = -1 // The parent process ID
   var tokensSent: Int = 0 // Counter for tokens sent
   var tokensReceived: Int = 0 // Counter for tokens received
-  var sent: mutable.Set[Int] = mutable.Set.empty // Set of neighbor IDs to which tokens have been sent
+  var sent: mutable.Set[Int] = mutable.Set.empty // Set of neighbor IDs to which the token has been sent
 
   /**
    * Receives messages and performs actions based on the message type.
@@ -30,8 +29,9 @@ class TarryProcess(val id: Int, val neighbors: List[Int], val initiator: Boolean
     case InitiateTarry =>
       log.info(s"$self is the initiator")
       if (neighbors.nonEmpty) {
+        // If there are neighbors, forward the token to the first neighbor
         val firstNeighbor = neighbors.head
-        forward(firstNeighbor) // Forward the token to the first neighbor
+        forward(firstNeighbor)
       }
 
     case TarryProbe(sid) =>
@@ -39,24 +39,34 @@ class TarryProcess(val id: Int, val neighbors: List[Int], val initiator: Boolean
       tokensReceived += 1
 
       if (parent == -1) {
-        parent = sid // Set the sender as the parent if no parent is assigned yet
+        // Set the sender as the parent if not already set
+        parent = sid
       }
 
-      if (initiator && tokensSent == neighbors.size && tokensReceived == neighbors.size) {
-        // If this process is the initiator and has sent and received tokens through all channels
-        log.info(s"$self received token through all channels, traversal completed")
-        processRecord.map(-1) ! TerminateTarry // Send termination message to the terminator
+      if (neighbors.forall(sent.contains)) {
+        // All neighbors have been visited
+        if (initiator) {
+          // If this process is the initiator, terminate the algorithm
+          log.info(s"$self received token through all channels, traversal completed")
+          processRecord.map(-1) ! TerminateTarry
+        } else {
+          // If this process is not the initiator, send the token back to the parent
+          forward(parent)
+        }
       } else {
-        val unsentNeighbors = neighbors.filter(n => !sent.contains(n) && n != sid) // Find unsent neighbors excluding the sender
+        // Choose the next unsent neighbor according to the rules
+        val unsentNeighbors = neighbors.filter(n => !sent.contains(n) && n != parent)
         if (unsentNeighbors.nonEmpty) {
-          val nextNeighbor = Random.shuffle(unsentNeighbors).head // Randomly select the next unsent neighbor
-          forward(nextNeighbor) // Forward the token to the randomly selected unsent neighbor
-        } else if (tokensSent == neighbors.size) {
-          // Forward the token back to the parent only if all neighbors have been sent tokens
+          // If there are unsent neighbors, forward the token to the first unsent neighbor
+          val nextNeighbor = unsentNeighbors.head
+          forward(nextNeighbor)
+        } else {
+          // If there are no unsent neighbors, send the token back to the parent
           forward(parent)
         }
       }
   }
+
   /**
    * Forwards the token to the specified neighbor.
    *
@@ -66,9 +76,9 @@ class TarryProcess(val id: Int, val neighbors: List[Int], val initiator: Boolean
     processRecord.map.get(neighborId) match {
       case Some(actorRef) =>
         log.info(s"$self forwarding token to $actorRef")
-        actorRef ! TarryProbe(id) // Send a TarryProbe message to the neighbor
+        actorRef ! TarryProbe(id)
         tokensSent += 1
-        sent += neighborId // Add the neighbor ID to the sent set
+        sent += neighborId
       case None =>
         log.error(s"$self Actor reference not found for process $neighborId")
     }
