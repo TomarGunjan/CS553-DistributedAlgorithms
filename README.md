@@ -138,4 +138,8 @@ This a menu driven project. On running the project the user is presented with op
 User can provide the option for any algorithm to trigger it. We have used logs to describe progress of algorithm which can be followed on terminal.
 ![image](https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/26132783/8d268912-a858-432d-85ad-a3dde822d2fc)
 
+## References 
+1. [NetGameSimu by Prof. Mark Grechanik](https://github.com/0x1DOCD00D/NetGameSim)
+2. Distributed Algorithms, Second Edition - An Intuitive Approach By Wan Fokkink(https://mitpress.mit.edu/9780262037662/distributed-algorithms/)
+
 
