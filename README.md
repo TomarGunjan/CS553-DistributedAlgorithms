@@ -37,18 +37,17 @@ Pre Requisites :
 1. Java 8 or higher
 2. Scala Plugin should be present
 
-<br/>
 Steps to Follow :
+
 1. Clone this repo to your local machine.
 2. Open the project in Intellij
 3. Navigate to src/main/scala/main/Main.scala
 4. Run Main.scala file
 
-### How to run from Command line
+## How to run from Command line
 Pre Requisite :
 1. Should have scala installed
 
-<br/>
 Steps to Follow :
 1. Clone this repo to your local machine.
 2. Navigate into the Project folder
