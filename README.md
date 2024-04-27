@@ -9,7 +9,7 @@
 This repository showcases the implementation of a variety distributed algorithms, such as Snapshot, Wave, and Deadlock Detection Algorithms. It executes a menu driven program for 6 distributed algorithms on graphs created by [NetGameSim](https://github.com/0x1DOCD00D/NetGameSim?tab=readme-ov-file) and some special topologies.
 
 ## About Framework
-The project has been modularized for code reusability and better readability. The project structure is as following
+The project has been modularized for code reusability and better readability. The project directory tree looks like this:
 
 **Project Structure**
 ```bash
@@ -61,52 +61,53 @@ The project has been modularized for code reusability and better readability. Th
 ```
 ### Description 
 
-**Main.scala** - This is the entry point of the project. 
+* **Main.scala** - This is the entry point of the project. 
 
-**algorithms package** - This package contains all the specific algorithm trigger files. These files prepare test data, create Actor classes and trigger the initiators for the algorithms.
+* **algorithms** - Package containing all the specific algorithm trigger files. These files prepare test data, create Actor classes and trigger the initiators for the algorithms.
 
-**processes package** - This package contains all the Actor files required for algorithms. Algorithm package classes create instances of these Actor classes for running the algorithm.
+* **processes package** - Package containing all the Actor logic required for algorithms. Algorithm package classes create instances of these Actor classes for running the algorithm.
 
-**utility package** - This package contains utility and reusable code common for all algorithms
+* **utility package** - Package containing utility and reusable code common for all algorithms.
+    * ApplicationProperties : This is a utility file to read properties from application.conf
+    * MessageTypes : This file has all the message types used by Actors.
+    * Terminator : A utility Actor class to help terminate Actor system when an algorithm has ended
+    * TopologyReader : A utility class to read network topology from test data files.
 
-* ApplicationProperties.scala : This is a utility file to read properties from application.conf
-* Message Types : This file has all the message types used by Actors.
-* Terminator : A utility Actor class to help terminate Actor system when an algorithm has ended
-* Topology Reader : A utility class to read network topology from test data files.
+* **Resources package** - Package containing static files containing Application.conf, and graph test data for creating network for running algorithms
 
-**Resources package** - This package containsstatic files containing Application.conf, and graph test data for creating network for running algorithms
+* **Application.conf** - This file has static values and data to be referenced by code.
 
-**Application.conf** - This file has static values and data to be referenced by code
-
-**test/src** - this package contains test unit tests for all algorithms
+* **test/src** - Package containing test unit tests for all algorithms.
 
 ## How to run project
 ### From Intellij IDE
-Requirements:
+**Requirements:**
 1. Java 8 or higher
-2. Scala Plugin should be present
+2. Scala Plugin installed
 
-Steps to Follow :
+**Steps to Follow :**
 
-1. Clone this repo to your local machine.
+Step 1. Clone this repo to your local machine.
    ```bash
     git clone https://github.com/TomarGunjan/CS553-DistributedAlgorithms.git
    ```
-3. Open the project in Intellij
-4. Navigate to src/main/scala/main/Main.scala
-5. Run Main.scala file
+Step 2. Open the project in IntelliJ
+
+Step 3. Navigate to src/main/scala/main/Main.scala
+
+Step 4. Run Main.scala file
 
 ### From Terminal
-Requirements:
+**Requirements:**
 1. Should have scala installed
 
 Steps to Follow :
-1. Clone this repo to your local machine.
+Step 1. Clone this repo to your local machine.
    ```bash
     git clone https://github.com/TomarGunjan/CS553-DistributedAlgorithms.git
    ```
-3. Navigate into the Project folder
-4. Run following command
+Step 2. Navigate into the Project folder
+Step 3. Run following command
    ```bash
     sbt clean compile run
    ```
