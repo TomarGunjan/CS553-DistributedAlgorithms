@@ -16,9 +16,12 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
 
   private var storedVariable = 0
   private var incomingChannelsRecorded = 0
+
+  // TO STORE HOW MANY MESSAGES SENT/RECEIVED TO/FROM EACH NEIGHBOR
   private val preSnapshotMessagesSent: mutable.Map[ActorRef, Int] = mutable.Map.empty
   private val preSnapshotMessagesToReceive: mutable.Map[ActorRef, Int] = mutable.Map.empty
 
+  // INITIALIZES THE MAPS WITH KEY-VALUE PAIRS
   def init(): Unit = {
     neighbors.foreach { key =>
       preSnapshotMessagesSent += (processRecord.map(key) -> 0)
@@ -29,24 +32,19 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
     }
   }
 
-//  override def postStop(): Unit = {
-//    // Cleanup tasks or finalization logic
-//    println(s"Actor${id} is being stopped. Performing cleanup tasks...")
-//    // Release resources, close connections, etc.
-//  }
-
   override def postStop(): Unit = {
     log.info(s"SHUTDOWN: process${id} is being stopped.")
   }
 
   def receive: Receive = {
     case InitiateSnapshotActors =>
+      // THIS RUNS THE init() METHOD
       log.info(s"process${id} being initialized")
       init()
     case InitiateSnapshotWithMessageCount(n, start) =>
-//      Thread.sleep(1000)
+      // start = false IMPLIES A CONTROL MESSAGE true MEANS THE PROCESS HAS INITIATED THE SNAPSHOT PROCESS BY ITSELF
       if (!start) {
-//        val realSender = if (sender == context.system.deadLetters) self else sender
+        // IF ALL PRE-SNAPSHOT MESSAGES HAVE BEEN RECEIVED FROM THE CHANNEL, WE STOP RECORDING
         val messagesToReceive = n + preSnapshotMessagesToReceive(sender)
         if (messagesToReceive == 0) {
           incomingChannelsRecorded += 1
@@ -59,27 +57,10 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
         log.info(s"Snapshot initiated by ${self.path.name}")
         snapshotTaken = !snapshotTaken
         systemSnapshot.systemSnapshot += (id -> new ProcessSnapshotData(storedVariable, ListBuffer()))
-//        if (sender != context.system.deadLetters) {
-//          val messagesToReceive = n + preSnapshotMessagesToReceive(sender)
-//          if (messagesToReceive == 0) {
-//            incomingChannelsRecorded += 1
-//            log.info(s"Recording stopped on channel ${sender.path.name} --> ${self.path.name}")
-//          }
-//          preSnapshotMessagesToReceive += (sender -> messagesToReceive)
-//        }
         neighbors.foreach(neighbor => processRecord.map(neighbor) ! InitiateSnapshotWithMessageCount(preSnapshotMessagesSent(processRecord.map(neighbor)), start = false))
       }
-//      else {
-//        if (sender != context.system.deadLetters) {
-//          val messagesToReceive = n + preSnapshotMessagesToReceive(sender)
-//          if (messagesToReceive == 0) {
-//            incomingChannelsRecorded += 1
-//            log.info(s"Recording stopped on channel ${sender.path.name} --> ${self.path.name}")
-//          }
-//          preSnapshotMessagesToReceive += (sender -> messagesToReceive)
-//        }
-//      }
 
+      // IF ALL INCOMING CHANNELS HAVE BEEN RECORDED PRINT THE SNAPSHOT DATA
       if (incomingChannelsRecorded == neighbors.size) {
         snapshotTaken = !snapshotTaken
         log.info(s"Snapshot procedure ended for ${self.path.name}")
@@ -88,14 +69,13 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
         numberOfProcessesCompletingSnapshot += 1
       }
 
+    // SENDS AN INCREMENT OR DECREMENT MESSAGE TO A RANDOM NEIGHBOR WITH A TAG
     case SendMessage(str) =>
-//      Thread.sleep(1000)
-//      processRecord.map(Random.nextInt(neighbors.length)) ! PerformAction(messageBody)
-        val receiver = processRecord.map(neighbors(Random.nextInt(neighbors.length)))
+      val receiver = processRecord.map(neighbors(Random.nextInt(neighbors.length)))
       if (!snapshotTaken) preSnapshotMessagesSent += (receiver -> (preSnapshotMessagesSent(receiver) + 1))
       receiver ! PerformActionWithTagPayload(str, snapshotTaken)
     case PerformActionWithTagPayload(action, tag) =>
-//      Thread.sleep(1000)
+      // PERFORM INCREMENT OR DECREMENT ON storedVariable DEPENDING ON
       if (action.equals("Increment")) {
         storedVariable += 1;
 //        log.info(s"Increment message sent from ${sender.path.name}... value of storedVariable in ${self.path.name} is ${storedVariable}")
@@ -103,12 +83,28 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
         storedVariable -= 1;
 //        log.info(s"Decrement message sent from ${sender.path.name}... value of storedVariable in ${self.path.name} is ${storedVariable}")
       }
+
+      // IF TAG IS FALSE, WE CHECK IF WE HAVE RECEIVED ALL FALSE MESSAGES FROM THE CHANNEL, AND STOP RECORDING IF WE HAVE
       if (!tag) {
         preSnapshotMessagesToReceive += (sender -> (preSnapshotMessagesToReceive(sender) - 1))
         if (this.snapshotTaken) {
+          val received = preSnapshotMessagesToReceive(sender)
+          if (received == 0) {
+            incomingChannelsRecorded += 1
+            log.info(s"Recording stopped on channel ${sender.path.name} --> ${self.path.name}")
+          }
+
+          if (incomingChannelsRecorded == neighbors.size) {
+            snapshotTaken = !snapshotTaken
+            log.info(s"Snapshot procedure ended for ${self.path.name}")
+            log.info(s"Saved Snapshot for ${self.path.name} -->")
+            systemSnapshot.printSnapshotData(id)
+            numberOfProcessesCompletingSnapshot += 1
+          }
           systemSnapshot.systemSnapshot(id).messageQueue += new MessageRecord(sender, action)
         }
       } else if (tag && !this.snapshotTaken && this.incomingChannelsRecorded < neighbors.size) {
+        // IF MESSAGE IS TAGGED WITH TRUE AND THE PROCESS HAS NOT TAKEN SNAPSHOT, IT INITIATES ITS OWN SNAPSHOT PROCEDURE
         self ! InitiateSnapshotWithMessageCount(-1, start = true)
       }
   }
