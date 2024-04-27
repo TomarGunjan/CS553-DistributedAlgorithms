@@ -102,6 +102,8 @@ The project has been modularized for code reusability and better readability. Th
 
 **Application.conf** - This file has static values and data to be referenced by code
 
+**test/src** - this package contains test unit tests for all algorithms
+
 ## How to run project
 ### From Intellij IDE
 Pre Requisites :
