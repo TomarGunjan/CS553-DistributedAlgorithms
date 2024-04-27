@@ -13,5 +13,5 @@ object ApplicationProperties {
   val tarryInputFile: String = app.getString("TarrysAlgorithm.InputFile")
   val echoInputFile: String = app.getString("EchoAlgorithm.InputFile")
   val treeInputFile: String = app.getString("TreeAlgorithm.InputFile")
-  val snapshotInputFile: String = app.getString("SnapshotAlgorithms.InputFile")
+  val snapshotInputFile: String = app.getString("SnapshotAlgorithm.InputFile")
 }

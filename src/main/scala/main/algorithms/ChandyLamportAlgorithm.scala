@@ -11,7 +11,7 @@ import scala.io.Source
 import scala.concurrent.duration._
 import scala.util.Random
 
-object ChandyLamportAlgorithm extends App {
+object ChandyLamportAlgorithm {
 
   var systemSnapshot:SystemSnapshot = null
   var processRecord:ProcessRecord = null
@@ -68,11 +68,11 @@ object ChandyLamportAlgorithm extends App {
 
     val processConfig: Map[String, List[String]] = TopologyReader.readTopology(filename)
 
-    if (TopologyReader.hasCycle(processConfig)) {
-      log.error("The input topology contains a cycle. Terminating the algorithm.")
-      system.terminate()
-      return
-    }
+//    if (TopologyReader.hasCycle(processConfig)) {
+//      log.error("The input topology contains a cycle. Terminating the algorithm.")
+//      system.terminate()
+//      return
+//    }
 
     processConfig.foreach { case (id, neighbors) =>
       val process = system.actorOf(Props(new ChandyLamportProcess(id.toInt, neighbors.map(_.toInt), false)), s"process$id")
@@ -165,7 +165,7 @@ object ChandyLamportAlgorithm extends App {
     log.info("Algorithm terminated")
   }
 
-  main()
+  //main()
 
 
 //  val terminator = system.actorOf(Props(new Terminator(system)), "terminator")
