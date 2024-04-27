@@ -82,25 +82,34 @@ The project has been modularized for code reusability and better readability. Th
 
 ## How to run project
 ### From Intellij IDE
-Pre Requisites :
+Requirements:
 1. Java 8 or higher
 2. Scala Plugin should be present
 
 Steps to Follow :
 
 1. Clone this repo to your local machine.
-2. Open the project in Intellij
-3. Navigate to src/main/scala/main/Main.scala
-4. Run Main.scala file
+   ```bash
+    git clone https://github.com/TomarGunjan/CS553-DistributedAlgorithms.git
+   ```
+3. Open the project in Intellij
+4. Navigate to src/main/scala/main/Main.scala
+5. Run Main.scala file
 
 ### From Terminal
-Pre Requisite :
+Requirements:
 1. Should have scala installed
 
 Steps to Follow :
 1. Clone this repo to your local machine.
-2. Navigate into the Project folder
-3. Run following command "**sbt clean compile run**"
+   ```bash
+    git clone https://github.com/TomarGunjan/CS553-DistributedAlgorithms.git
+   ```
+3. Navigate into the Project folder
+4. Run following command
+   ```bash
+    sbt clean compile run
+   ```
    
 
 ## Test Data
