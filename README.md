@@ -131,4 +131,11 @@ Steps to Follow :
 Example for Tree algo from NetGameSim
 
 ## Output
-Screenshot
+This a menu driven project. On running the project the user is presented with options to run any algorithm as below :
+![image](https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/26132783/eff9d140-8dc2-48d0-831d-0cf5673c7544)
+
+
+User can provide the option for any algorithm to trigger it. We have used logs to describe progress of algorithm which can be followed on terminal.
+![image](https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/26132783/8d268912-a858-432d-85ad-a3dde822d2fc)
+
+
