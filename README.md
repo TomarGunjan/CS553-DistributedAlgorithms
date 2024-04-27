@@ -30,6 +30,8 @@ The Bracha-Toueg Algorithm is employed for deadlock detection in distributed sys
 
 
 ## About Framework
+The project has been modularized for code reusability and better readability. The project structure is as following
+
 Diagram and Explanation
 ```bash
 ├── README.md
@@ -78,10 +80,26 @@ Diagram and Explanation
             ├── chandyLamportTest.scala
             └── laiYangTest.scala
 ```
-### Description of main folders
+### Description 
 
-### Description of main files
 
+### Description of some important files
+**Main.scala** - This is the entry point of the project. 
+
+**algorithms package** - This package contains all the specific algorithm trigger files. These files prepare test data, create Actor classes and trigger the initiators for the algorithms.
+
+**processes package** - This package contains all the Actor files required for algorithms. Algorithm package classes create instances of these Actor classes for running the algorithm.
+
+**utility package** - This package contains utility and reusable code common for all algorithms
+
+    - ApplicationProperties.scala : This is a utility file to read properties from application.conf
+    - Message Types : This file has all the message types used by Actors.
+    - Terminator : A utility Actor class to help terminate Actor system when an algorithm has ended 
+    - Topology Reader : A utility class to read network topology from test data files.
+
+**Resources package** - This package containsstatic files containing Application.conf, and graph test data for creating network for running algorithms
+
+**Application.conf** - This file has static values and data to be referenced by code
 
 ## How to run project
 ### From Intellij IDE
