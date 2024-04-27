@@ -82,8 +82,6 @@ Diagram and Explanation
 ```
 ### Description 
 
-
-### Description of some important files
 **Main.scala** - This is the entry point of the project. 
 
 **algorithms package** - This package contains all the specific algorithm trigger files. These files prepare test data, create Actor classes and trigger the initiators for the algorithms.
