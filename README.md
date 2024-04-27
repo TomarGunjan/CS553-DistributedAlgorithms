@@ -41,7 +41,6 @@ Diagram and Explanation
 ```bash
 ├── README.md
 ├── build.sbt
-├── output.txt
 ├── project
 │   └── build.properties
 └── src
