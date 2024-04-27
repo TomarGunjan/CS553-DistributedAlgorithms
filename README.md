@@ -1,4 +1,4 @@
-# CS553 Distributed Agorithms Project
+# CS553 Distributed Algorithms Project
 
 ### Submitted By -
 1. Aakash Dasgupta
@@ -118,27 +118,21 @@ User can provide the option for any algorithm to trigger it. We have used logs t
 1. [NetGameSim](https://github.com/0x1DOCD00D/NetGameSim) by [Prof. Mark Grechanik](https://github.com/0x1DOCD00D)
 2. [Distributed Algorithms, Second Edition - An Intuitive Approach By Wan Fokkink](https://mitpress.mit.edu/9780262037662/distributed-algorithms/)
 
-## Algorithms
+## Appendix - Algorithm Descriptions
 ### 1. Snapshot Algorithms 
 The Snapshot Algorithm, refers to the process of capturing a consistent global state of the system at a specific point in time. It allows processes to record their local states and messages exchanged, facilitating the observation of the distributed system's behavior for debugging and analysis purposes.
-#### 1.1 Chandy-Lamport Algorithm
-The Chandy–Lamport algorithm is a snapshot algorithm that is used in distributed systems for recording a consistent global state of an asynchronous system. 
-#### 1.2 Lai-Yang Algorithm
-The Lai-Yang Algorithm is a snapshot algorithm used for taking consistent global snapshots of a distributed system. This algorithm does not rely on the FIFO property of channels.
+* 1.1 Chandy-Lamport Algorithm: The Chandy–Lamport algorithm is a snapshot algorithm that is used in distributed systems for recording a consistent global state of an asynchronous system.
+* 1.2 Lai-Yang Algorithm: The Lai-Yang Algorithm is a snapshot algorithm used for taking consistent global snapshots of a distributed system. This algorithm does not rely on the FIFO property of channels.
 
 
 ### 2. Wave Algorithm
 A wave algorithm is a type of distributed algorithm used for propagating information within a distributed network of nodes.
-#### 2.1 Tarry Algorithm
-Coordinates process traversal in a distributed system, ensuring a predetermined order of visitation and enabling synchronization.
-#### 2.2 Tree Algorithm
-Structures the communication network in a hierarchical tree-like fashion, facilitating efficient message propagation and information dissemination.
-#### 2.3 Echo Algorithm 
-A fundamental communication protocol where a message is sent through the network and echoed back by each recipient, confirming its receipt.
+* 2.1 Tarry Algorithm: Coordinates process traversal in a distributed system, ensuring a predetermined order of visitation and enabling synchronization.
+* 2.2 Tree Algorithm: Structures the communication network in a hierarchical tree-like fashion, facilitating efficient message propagation and information dissemination.
+* 2.3 Echo Algorithm: A fundamental communication protocol where a message is sent through the network and echoed back by each recipient, confirming its receipt.
 
 
 ### 3. Deadlock Detection
 Deadlock detection is a fundamental problem in distributed computing, which requires determining a cyclic dependency within a running system.
-#### 3.1 Bracha-Toueg Algorithm
-The Bracha-Toueg Algorithm is employed for deadlock detection in distributed systems. It monitors resource allocation and process interactions to detect potential deadlocks and take corrective actions to resolve them. By proactively identifying and mitigating deadlocks, this algorithm enhances the reliability and availability of distributed systems.
+* 3.1 Bracha-Toueg Algorithm: The Bracha-Toueg Algorithm is employed for deadlock detection in distributed systems. It monitors resource allocation and process interactions to detect potential deadlocks and take corrective actions to resolve them. By proactively identifying and mitigating deadlocks, this algorithm enhances the reliability and availability of distributed systems.
 
