@@ -13,7 +13,7 @@ The Lai-Yang Algorithm is a distributed algorithm used for taking consistent glo
 #### b) Chandy-Lamport Algorithm
 The Chandy-Lamport Algorithm is another method for capturing consistent global snapshots in a distributed system. It allows processes to record their local states and the messages they send and receive, facilitating the construction of a global snapshot.
 
-### Wave Algorithm
+### 2. Wave Algorithm
 The Wave Algorithm is a communication protocol used for message dissemination and synchronization in distributed systems. It facilitates the propagation of messages through the network in a coordinated manner, ensuring reliable communication and synchronization among processes.
 #### a). Echo Algorithm 
 A fundamental communication protocol where a message is sent through the network and echoed back by each recipient, confirming its receipt.
@@ -22,11 +22,14 @@ Structures the communication network in a hierarchical tree-like fashion, facili
 #### c) Tarry Algorithm
 Coordinates process traversal in a distributed system, ensuring a predetermined order of visitation and enabling synchronization.
 
-### Deadlock Detection
+### 3. Deadlock Detection
 Deadlocks can occur in distributed systems when processes compete for resources and become deadlocked, unable to progress. Deadlock detection algorithms help identify and resolve such deadlocks, ensuring system stability.
 
 #### Bracha-Toueg Algorithm
 The Bracha-Toueg Algorithm is employed for deadlock detection in distributed systems. It monitors resource allocation and process interactions to detect potential deadlocks and take corrective actions to resolve them. By proactively identifying and mitigating deadlocks, this algorithm enhances the reliability and availability of distributed systems.
+
+
+## About Framework
 
 ## Requirements fulfilled for the course project
 1. Generated a dot file from NetGameSim containing information about node connections.
