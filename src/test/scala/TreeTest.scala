@@ -53,7 +53,7 @@ class TreeTest extends TestKit(ActorSystem("TreeTest"))
       process12 ! Wave
       process13 ! Wave
 
-      // Verify the expected behavior
+      // Verify that the algorithm terminates correctly by expecting a TreeTerminate message at the terminator
       terminatorProbe.expectMsg(TreeTerminate)
     }
 

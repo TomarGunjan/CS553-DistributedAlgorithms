@@ -9,6 +9,10 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Random
 
+/**
+ * Object representing Tarry's algorithm.
+ * Extends the MessageTypes trait to have access to the message types used in the algorithm.
+ */
 object TarrysAlgorithm extends MessageTypes {
   val log = Logger(getClass.getName)
 
@@ -29,11 +33,11 @@ object TarrysAlgorithm extends MessageTypes {
 
     // Get all process IDs and convert them to integers
     val allProcessIds = processConfig.keys.map(_.toInt).toList
-
     // Randomly select the initiator process ID from the list of process IDs
     val randomInitiatorId = Random.shuffle(allProcessIds).head
     log.info(s"Randomly selected initiator ID: $randomInitiatorId")
 
+    // Create TarryProcess actors based on the process configuration
     processConfig.foreach { case (id, neighbors) =>
       val neighborList = neighbors.mkString(", ") // Convert neighbors list to a string for logging
       val initiator = id.toInt == randomInitiatorId

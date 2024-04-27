@@ -6,12 +6,20 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import main.processes.TarryProcess
 import main.utility.{InitiateTarry, TarryProbe, TerminateTarry, ProcessRecord}
 
+/**
+ * Test suite for the TarryProcess actor.
+ * Extends the TestKit class to provide an actor system for testing.
+ * Mixes in ImplicitSender, AnyWordSpecLike, Matchers, and BeforeAndAfterAll traits.
+ */
 class TarryTest extends TestKit(ActorSystem("TarryTest"))
   with ImplicitSender
   with AnyWordSpecLike
   with Matchers
   with BeforeAndAfterAll {
 
+  /**
+   * Shutdown the actor system after all tests have finished.
+   */
   override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
   }
@@ -35,7 +43,7 @@ class TarryTest extends TestKit(ActorSystem("TarryTest"))
       // Send InitiateTarry message to the initiator (process1)
       process1 ! InitiateTarry
 
-      // Verify the expected behavior
+      // Verify that the terminator receives the TerminateTarry message
       terminatorProbe.expectMsg(TerminateTarry)
     }
 
@@ -57,7 +65,7 @@ class TarryTest extends TestKit(ActorSystem("TarryTest"))
       // Send InitiateTarry message to the initiator (process1)
       process1 ! InitiateTarry
 
-      // Verify the expected behavior
+      // Verify that the terminator receives the TerminateTarry message
       terminatorProbe.expectMsg(TerminateTarry)
     }
 
@@ -80,7 +88,7 @@ class TarryTest extends TestKit(ActorSystem("TarryTest"))
       // Send InitiateTarry message to the initiator (process1)
       process1 ! InitiateTarry
 
-      // Verify the expected behavior
+      // Verify that the terminator receives the TerminateTarry message
       terminatorProbe.expectMsg(TerminateTarry)
     }
   }
