@@ -93,7 +93,8 @@ The project has been modularized for code reusability and better readability. Th
 
 **utility package** - This package contains utility and reusable code common for all algorithms
 
-Markup : * ApplicationProperties.scala : This is a utility file to read properties from application.conf
+Markup : 
+* ApplicationProperties.scala : This is a utility file to read properties from application.conf
 * Message Types : This file has all the message types used by Actors.
 * Terminator : A utility Actor class to help terminate Actor system when an algorithm has ended
 * Topology Reader : A utility class to read network topology from test data files.
