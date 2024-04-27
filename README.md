@@ -35,7 +35,7 @@ The Bracha-Toueg Algorithm is employed for deadlock detection in distributed sys
 ## About Framework
 The project has been modularized for code reusability and better readability. The project structure is as following
 
-Diagram and Explanation
+**Project Structure**
 ```bash
 ├── README.md
 ├── build.sbt
