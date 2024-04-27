@@ -31,36 +31,7 @@ The Bracha-Toueg Algorithm is employed for deadlock detection in distributed sys
 
 ## About Framework
 
-## How to run project
-### From Intellij IDE
-Pre Requisites :
-1. Java 8 or higher
-2. Scala Plugin should be present
 
-Steps to Follow :
-
-1. Clone this repo to your local machine.
-2. Open the project in Intellij
-3. Navigate to src/main/scala/main/Main.scala
-4. Run Main.scala file
-
-### From Terminal
-Pre Requisite :
-1. Should have scala installed
-
-Steps to Follow :
-1. Clone this repo to your local machine.
-2. Navigate into the Project folder
-3. Run following command "**sbt clean compile run**"
-   
-
-   
-
-## Requirements fulfilled for the course project
-1. Generated a dot file from NetGameSim containing information about node connections.
-2. Used aforementioned graph to spawn a graph of Akka Actors.
-3. 
-## Clone Instructions
 ## Workflow
 Diagram and Explanation
 ```bash
@@ -110,6 +81,37 @@ Diagram and Explanation
             ├── chandyLamportTest.scala
             └── laiYangTest.scala
 ```
+
+## How to run project
+### From Intellij IDE
+Pre Requisites :
+1. Java 8 or higher
+2. Scala Plugin should be present
+
+Steps to Follow :
+
+1. Clone this repo to your local machine.
+2. Open the project in Intellij
+3. Navigate to src/main/scala/main/Main.scala
+4. Run Main.scala file
+
+### From Terminal
+Pre Requisite :
+1. Should have scala installed
+
+Steps to Follow :
+1. Clone this repo to your local machine.
+2. Navigate into the Project folder
+3. Run following command "**sbt clean compile run**"
+   
+
+   
+
+## Requirements fulfilled for the course project
+1. Generated a dot file from NetGameSim containing information about node connections.
+2. Used aforementioned graph to spawn a graph of Akka Actors.
+3. 
+## Clone Instructions
 ## Components of the Project
 The Project has been divided into interconnected modules.
 1. The algorithms package contains the overarching logic of the corresponding algorithm.
