@@ -139,7 +139,7 @@ User can provide the option for any algorithm to trigger it. We have used logs t
 ![image](https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/26132783/8d268912-a858-432d-85ad-a3dde822d2fc)
 
 ## References 
-1. [NetGameSimu by Prof. Mark Grechanik](https://github.com/0x1DOCD00D/NetGameSim)
+1. [NetGameSim by Prof. Mark Grechanik](https://github.com/0x1DOCD00D/NetGameSim)
 2. Distributed Algorithms, Second Edition - An Intuitive Approach By Wan Fokkink(https://mitpress.mit.edu/9780262037662/distributed-algorithms/)
 
 
