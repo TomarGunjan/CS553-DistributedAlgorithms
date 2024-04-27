@@ -4,7 +4,7 @@
 2. Dhruv Agarwal
 3. Gunjan Tomar - 674659382
 ## Overview
-This repository showcases the implementation of various distributed algorithms, including Snapshot, Wave, and Deadlock Detection.
+This repository showcases the implementation of various distributed algorithms, including Snapshot, Wave, and Deadlock Detection. It executes distributed algorithms on graphs created by [NetGameSim](https://github.com/0x1DOCD00D/NetGameSim?tab=readme-ov-file).
 ### 1. Snapshot Algorithms 
 The Snapshot Algorithm, refers to the process of capturing a consistent global state of the system at a specific point in time. It allows processes to record their local states and messages exchanged, facilitating the observation of the distributed system's behavior for debugging and analysis purposes.
 #### a) Lai-Yang Algorithm
