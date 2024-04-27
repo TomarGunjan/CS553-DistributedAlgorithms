@@ -44,7 +44,7 @@ Steps to Follow :
 3. Navigate to src/main/scala/main/Main.scala
 4. Run Main.scala file
 
-## How to run from Command line
+### From Terminal
 Pre Requisite :
 1. Should have scala installed
 
