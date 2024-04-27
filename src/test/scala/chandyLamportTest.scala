@@ -48,12 +48,10 @@ class chandyLamportTest extends TestKit(ActorSystem("SnapshotTest"))
 
       val process0 = system.actorOf(Props(new ChandyLamportProcess(0, List(1), false)), "process0")
       val process1 = TestProbe()
-//      val process2 = TestProbe()
 
       processRecord.map ++= Map(
         0 -> process0,
         1 -> process1.ref,
-//        2 -> process2.ref
       )
 
       ChandyLamportAlgorithm.init(processRecord)
@@ -62,13 +60,6 @@ class chandyLamportTest extends TestKit(ActorSystem("SnapshotTest"))
 
       process1.expectMsgAnyOf(PerformAction("increment"))
       expectNoMessage()
-//      process2.expectMsgAnyOf(PerformAction("increment"))
-//      expectNoMessage()
-//      process2.expectNoMessage()
-
-//      expectMsgPF(
-//        case process1.expectMsg(PerformAction("increment")) | process2.expectMsg(PerformAction("increment")) =>
-//      )
 
     }
 
