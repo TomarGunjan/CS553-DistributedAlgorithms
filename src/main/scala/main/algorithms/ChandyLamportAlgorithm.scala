@@ -46,16 +46,14 @@ object ChandyLamportAlgorithm {
     }
 
     val keySeq = processRecord.map.keys.toSeq
+    val selectedProcess = processRecord.map(keySeq(Random.nextInt(keySeq.length)))
+    selectedProcess ! InitiateSnapshot(true)
 
     // A WHILE LOOP TO SIMULATE THE WORKING OF A DISTRIBUTED SYSTEM
     while (numberOfProcessesCompletingSnapshot < processRecord.map.size) {
       // AN ACTION WILL BE PERFORMED BY A RANDOMLY SELECTED PROCESS
-      val selectedKey = Random.nextInt(3)
-      if (selectedKey == 0 && !snapshotTaken) {
-        snapshotTaken = true
-        val selectedProcess = processRecord.map(keySeq(Random.nextInt(keySeq.length)))
-        selectedProcess ! InitiateSnapshot(true)
-      } else if (selectedKey == 1 || selectedKey == 2) {
+      val selectedKey = Random.nextInt(2)
+      if (selectedKey == 0 || selectedKey == 1) {
         val selectedId = keySeq(Random.nextInt(keySeq.length))
         val sender = processRecord.map(selectedId)
         val operation = if (selectedKey == 1) "increment" else "decrement"
