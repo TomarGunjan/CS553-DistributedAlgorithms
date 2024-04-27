@@ -93,10 +93,10 @@ The project has been modularized for code reusability and better readability. Th
 
 **utility package** - This package contains utility and reusable code common for all algorithms
 
-    - ApplicationProperties.scala : This is a utility file to read properties from application.conf
-    - Message Types : This file has all the message types used by Actors.
-    - Terminator : A utility Actor class to help terminate Actor system when an algorithm has ended 
-    - Topology Reader : A utility class to read network topology from test data files.
+Markup : * ApplicationProperties.scala : This is a utility file to read properties from application.conf
+* Message Types : This file has all the message types used by Actors.
+* Terminator : A utility Actor class to help terminate Actor system when an algorithm has ended
+* Topology Reader : A utility class to read network topology from test data files.
 
 **Resources package** - This package containsstatic files containing Application.conf, and graph test data for creating network for running algorithms
 
