@@ -1,8 +1,8 @@
-package main
+//package main
 
 import scala.io.StdIn
 import akka.event.slf4j.Logger
-import main.algorithms.{BrachaTouegAlgorithm, TarrysAlgorithm, TreeAlgorithm, EchoAlgorithm}
+import main.algorithms.{BrachaTouegAlgorithm, ChandyLamportAlgorithm, EchoAlgorithm, LaiYangAlgorithm, TarrysAlgorithm, TreeAlgorithm}
 
 object Main extends App {
     val logger = Logger("Main")
@@ -36,10 +36,11 @@ object Main extends App {
                 EchoAlgorithm.main()
             case 5 =>
                 logger.info("Running Chandy Lamport Algorithm")
-//                ChandyLamport.main()
+//                ChandyLamportAlgorithm cla = new ChandyLamportAlgorithm()
+                ChandyLamportAlgorithm.main()
             case 6 =>
                 logger.info("Running Lai Yang Algorithm")
-//                LaiYang.main()
+                LaiYangAlgorithm.main()
             case 7 =>
                 logger.info("Exiting...")
             case _ =>
@@ -57,7 +58,10 @@ object Main extends App {
         } catch {
             case _: NumberFormatException =>
                 logger.warn("Invalid input. Please enter a valid integer.")
-            case _: Exception =>
+//            case n:NullPointerException =>
+//                logger.info("Snapshot algorithm terminated\n")
+            case e: Exception =>
+                e.printStackTrace()
                 logger.error("An error occurred. Please try again.")
         }
     } while (choice != 7)
