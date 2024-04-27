@@ -38,7 +38,7 @@ The Bracha-Toueg Algorithm is employed for deadlock detection in distributed sys
 ## Clone Instructions
 ## Workflow
 Diagram and Explanation
-.
+```bash
 ├── README.md
 ├── build.sbt
 ├── output.txt
@@ -85,6 +85,7 @@ Diagram and Explanation
             ├── brachaTouegTest.scala
             ├── chandyLamportTest.scala
             └── laiYangTest.scala
+```
 ## Components of the Project
 The Project has been divided into interconnected modules.
 1. The algorithms package contains the overarching logic of the corresponding algorithm.
