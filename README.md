@@ -38,6 +38,53 @@ The Bracha-Toueg Algorithm is employed for deadlock detection in distributed sys
 ## Clone Instructions
 ## Workflow
 Diagram and Explanation
+.
+├── README.md
+├── build.sbt
+├── output.txt
+├── project
+│   └── build.properties
+└── src
+    ├── main
+    │   ├── resources
+    │   │   ├── NetGraph_21-04-24-18-24-58.ngs.perturbed.dot
+    │   │   ├── NetGraph_30-03-24-18-54-55.ngs.dot
+    │   │   ├── application.conf
+    │   │   ├── graph_50_nodes.dot
+    │   │   ├── inputEcho.dot
+    │   │   └── inputTarry.dot
+    │   └── scala
+    │       └── main
+    │           ├── Main.scala
+    │           ├── algorithms
+    │           │   ├── BrachaTouegAlgorithm.scala
+    │           │   ├── ChandyLamportAlgorithm.scala
+    │           │   ├── EchoAlgorithm.scala
+    │           │   ├── LaiYangAlgorithm.scala
+    │           │   ├── TarrysAlgorithm.scala
+    │           │   └── TreeAlgorithm.scala
+    │           ├── processes
+    │           │   ├── BrachaTouegProcess.scala
+    │           │   ├── ChandyLamportProcess.scala
+    │           │   ├── EchoProcess.scala
+    │           │   ├── LaiYangProcess.scala
+    │           │   ├── TarryProcess.scala
+    │           │   └── TreeProcess.scala
+    │           └── utility
+    │               ├── ApplicationProperties.scala
+    │               ├── MessageTypes.scala
+    │               ├── ProcessRecord.scala
+    │               ├── SnapshotUtils.scala
+    │               ├── Terminator.scala
+    │               └── TopologyReader.scala
+    └── test
+        └── scala
+            ├── EchoTest.scala
+            ├── TarryTest.scala
+            ├── TreeTest.scala
+            ├── brachaTouegTest.scala
+            ├── chandyLamportTest.scala
+            └── laiYangTest.scala
 ## Components of the Project
 The Project has been divided into interconnected modules.
 1. The algorithms package contains the overarching logic of the corresponding algorithm.
