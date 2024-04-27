@@ -21,6 +21,7 @@ case class TarryProbe(id: Int) extends MessageTypes
 case object TerminateTarry extends MessageTypes
 
 case class Wave() extends MessageTypes
+case class AllProcessesCreated() extends MessageTypes
 case class Info() extends MessageTypes
 case class Decide() extends MessageTypes
 case object TreeTerminate extends MessageTypes
