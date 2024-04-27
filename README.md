@@ -1,31 +1,34 @@
-## CS553 Distributed Agorithms Project
+# CS553 Distributed Agorithms Project
+
 ### Submitted By -
 1. Aakash Dasgupta
 2. Dhruv Agarwal - 
 3. Gunjan Tomar - 674659382
+
 ## Overview
-This repository showcases the implementation of various distributed algorithms, including Snapshot, Wave, and Deadlock Detection. It executes distributed algorithms on graphs created by [NetGameSim](https://github.com/0x1DOCD00D/NetGameSim?tab=readme-ov-file). Made a menu driven program for 6 distributed algorithms.
+This repository showcases the implementation of a variety distributed algorithms, such as Snapshot, Wave, and Deadlock Detection Algorithms. It executes a menu driven program for 6 distributed algorithms on graphs created by [NetGameSim](https://github.com/0x1DOCD00D/NetGameSim?tab=readme-ov-file) and some special topologies.
+
 ### 1. Snapshot Algorithms 
 The Snapshot Algorithm, refers to the process of capturing a consistent global state of the system at a specific point in time. It allows processes to record their local states and messages exchanged, facilitating the observation of the distributed system's behavior for debugging and analysis purposes.
-#### a) Lai-Yang Algorithm
-The Lai-Yang Algorithm is a distributed algorithm used for taking consistent global snapshots of a distributed system. It ensures that each process captures a consistent snapshot of the system's state, which is crucial for various applications like checkpointing and debugging.
+#### 1.1 Chandy-Lamport Algorithm
+The Chandy–Lamport algorithm is a snapshot algorithm that is used in distributed systems for recording a consistent global state of an asynchronous system. 
+#### 1.2 Lai-Yang Algorithm
+The Lai-Yang Algorithm is a snapshot algorithm used for taking consistent global snapshots of a distributed system. This algorithm does not rely on the FIFO property of channels.
 
-#### b) Chandy-Lamport Algorithm
-The Chandy-Lamport Algorithm is another method for capturing consistent global snapshots in a distributed system. It allows processes to record their local states and the messages they send and receive, facilitating the construction of a global snapshot.
 
 ### 2. Wave Algorithm
-The Wave Algorithm is a communication protocol used for message dissemination and synchronization in distributed systems. It facilitates the propagation of messages through the network in a coordinated manner, ensuring reliable communication and synchronization among processes.
-#### a). Echo Algorithm 
-A fundamental communication protocol where a message is sent through the network and echoed back by each recipient, confirming its receipt.
-#### b) Tree Algorithm
-Structures the communication network in a hierarchical tree-like fashion, facilitating efficient message propagation and information dissemination.
-#### c) Tarry Algorithm
+A wave algorithm is a type of distributed algorithm used for propagating information within a distributed network of nodes.
+#### 2.1 Tarry Algorithm
 Coordinates process traversal in a distributed system, ensuring a predetermined order of visitation and enabling synchronization.
+#### 2.2 Tree Algorithm
+Structures the communication network in a hierarchical tree-like fashion, facilitating efficient message propagation and information dissemination.
+#### 2.3 Echo Algorithm 
+A fundamental communication protocol where a message is sent through the network and echoed back by each recipient, confirming its receipt.
+
 
 ### 3. Deadlock Detection
-Deadlocks can occur in distributed systems when processes compete for resources and become deadlocked, unable to progress. Deadlock detection algorithms help identify and resolve such deadlocks, ensuring system stability.
-
-#### Bracha-Toueg Algorithm
+Deadlock detection is a fundamental problem in distributed computing, which requires determining a cyclic dependency within a running system.
+#### 3.1 Bracha-Toueg Algorithm
 The Bracha-Toueg Algorithm is employed for deadlock detection in distributed systems. It monitors resource allocation and process interactions to detect potential deadlocks and take corrective actions to resolve them. By proactively identifying and mitigating deadlocks, this algorithm enhances the reliability and availability of distributed systems.
 
 
