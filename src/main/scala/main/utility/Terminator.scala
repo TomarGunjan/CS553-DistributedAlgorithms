@@ -23,15 +23,12 @@ class Terminator(val system: ActorSystem) extends Actor {
         }
       }
     case TerminateTarry =>
-      println("Terminating Tarry's algorithm")
       system.terminate()
 
     case TreeTerminate =>
-      println("Terminating tree algorithm")
       system.terminate()
 
     case EchoTerminate() =>
-      println("Terminating Echo algorithm")
       system.terminate()
   }
 
