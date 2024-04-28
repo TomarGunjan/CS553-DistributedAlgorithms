@@ -3,7 +3,7 @@ package main.algorithms
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.Logger
 import main.processes.EchoProcess
-import main.utility.{MessageTypes, Terminator, ApplicationProperties, TopologyReader, AllProcessesCreated}
+import main.utility.{MessageTypes, Terminator, ApplicationProperties, TopologyReader, AllProcessesCreated, ProcessRecord}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -17,39 +17,40 @@ object EchoAlgorithm extends MessageTypes {
   val log = Logger(getClass.getName)
 
   /**
-   * Main method to run the Echo algorithm.
+   * Main entry point of the Echo algorithm.
+   * Initializes the actor system, loads the topology from a file, creates the actors,
+   * and runs the algorithm.
    */
   def main(): Unit = {
     // Create an actor system for the Echo algorithm
     val system = ActorSystem("EchoAlgorithmSystem")
+    // Create a ProcessRecord to store the mapping of process IDs to actor references
+    val processRecord = new ProcessRecord
 
-    // Read the process configuration from the input file specified in ApplicationProperties
+    // Load the topology file path from the application configuration
     val filename = ApplicationProperties.echoInputFile
     val processConfig: Map[String, List[String]] = TopologyReader.readTopology(filename)
 
-    // Get all process IDs from the configuration and convert them to integers
+    // Get all process IDs and convert them to integers
     val allProcessIds = processConfig.keys.map(_.toInt).toList
-
-    // Randomly select an initiator process ID
+    // Randomly select the initiator process ID from the list of process IDs
     val randomInitiatorId = Random.shuffle(allProcessIds).head
     log.info(s"Randomly selected initiator ID: $randomInitiatorId")
 
     // Create EchoProcess actors based on the process configuration
-    // Each process actor is created with its ID, list of neighbors, and initiator flag
-    // The created actors are stored in a map with their ID as the key
-    val processActors = processConfig.map { case (id, neighbors) =>
+    processConfig.foreach { case (id, neighbors) =>
       val isInitiator = id.toInt == randomInitiatorId
-      val processActor = system.actorOf(Props(new EchoProcess(id, neighbors, isInitiator)), id)
+      val processActor = system.actorOf(Props(new EchoProcess(id, neighbors, isInitiator, processRecord)), id)
       log.info(s"Created EchoProcess actor for Process $id with neighbors: ${neighbors.mkString(", ")}, Actor: $processActor")
-      (id.toInt, processActor)
-    }.toMap
+      processRecord.map += (id.toInt -> processActor)
+    }
 
-    // Send AllProcessesCreated message to the initiator process
-    // This triggers the start of the Echo algorithm
-    processActors(randomInitiatorId) ! AllProcessesCreated
+    // Notify all processes that they are created and can start the algorithm
+    processRecord.map.get(randomInitiatorId).foreach(_ ! AllProcessesCreated)
 
     // Create a Terminator actor to handle the termination of the algorithm
     val terminator = system.actorOf(Props(new Terminator(system)), "terminator")
+    processRecord.map += (-1 -> terminator)
 
     // Wait for the algorithm to terminate or timeout after 30 seconds
     Await.ready(system.whenTerminated, 30.seconds)
