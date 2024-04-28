@@ -1,6 +1,6 @@
 import scala.io.StdIn
 import akka.event.slf4j.Logger
-import main.algorithms.{BrachaTouegAlgorithm, ChandyLamportAlgorithm, EchoAlgorithm, LaiYangAlgorithm, TarrysAlgorithm, TreeAlgorithm, ChangRobertsAlgorithm}
+import main.algorithms.{BrachaTouegAlgorithm, ChandyLamportAlgorithm, ChangRobertsAlgorithm, EchoAlgorithm, FranklinAlgorithm, LaiYangAlgorithm, TarrysAlgorithm, TreeAlgorithm}
 
 object Main extends App {
     val logger = Logger("Main")
@@ -14,9 +14,10 @@ object Main extends App {
         println("5. Chandy Lamport Algorithm")
         println("6. Lai Yang Algorithm")
         println("7. Chang Roberts Algorithm")
-        println("8. Exit")
+        println("8. Franklin Algorithm")
+        println("9. Exit")
         println("=====================================")
-        print("Enter your choice (1-8): ")
+        print("Enter your choice (1-9): ")
     }
 
     def runAlgorithm(choice: Int): Unit = {
@@ -43,9 +44,12 @@ object Main extends App {
                 logger.info("Running Chang Roberts Algorithm")
                 ChangRobertsAlgorithm.main()
             case 8 =>
+                logger.info("Running Franklin Algorithm")
+                FranklinAlgorithm.main()
+            case 9 =>
                 logger.info("Exiting...")
             case _ =>
-                logger.warn("Invalid choice. Please enter a number between 1 and 7.")
+                logger.warn("Invalid choice. Please enter a number between 1 and 9.")
         }
     }
 
@@ -63,5 +67,5 @@ object Main extends App {
                 e.printStackTrace()
                 logger.error("An error occurred. Please try again.")
         }
-    } while (choice != 8)
+    } while (choice != 9)
 }

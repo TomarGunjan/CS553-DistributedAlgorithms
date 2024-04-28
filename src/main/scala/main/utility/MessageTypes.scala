@@ -35,3 +35,10 @@ case class PerformActionWithTagPayload(str: String, snapshotTaken: Boolean) exte
 
 case class ElectionMessage(uid: Int) extends MessageTypes
 case class ElectedMessage(uid: Int) extends MessageTypes
+
+case object LeftIdRequest
+case object RightIdRequest
+case class LeftIdResponse(id: Option[Int])
+case class RightIdResponse(id: Option[Int])
+case object TurnPassive
+case class Checkpoint(id: Int, isActive: Boolean, isLeader:Boolean)

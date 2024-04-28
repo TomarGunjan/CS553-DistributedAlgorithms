@@ -2,6 +2,8 @@ package main.utility
 
 import com.typesafe.config.{Config, ConfigFactory}
 
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 /**
  * Utility class to load data from application.conf file
  */
@@ -14,5 +16,6 @@ object ApplicationProperties {
   val treeInputFile: String = app.getString("TreeAlgorithm.InputFile")
   val snapshotInputFile: String = app.getString("SnapshotAlgorithm.InputFile")
   val changRobertsData: Config = app.getConfig("ChangRoberts.TestData")
+  val franklinData: List[Config] = app.getConfigList("FranklinAlgorithm.TestData.nodes").asScala.toList
 
 }
