@@ -77,11 +77,11 @@ The project has been modularized for code reusability and better readability. Th
     * FranklinOrchestrator: A utility class to manage rounds for Franklin's Algorithm.
     * SnapshotUtils: A Utility class to store and log data for Snapshot Algorithms.
 
-* **Resources package** - Package containing static files containing Application.conf, and graph test data for creating network for running algorithms
+* **resources package** - Package containing static files containing Application.conf, and graph test data for creating network for running algorithms
 
-* **Application.conf** - This file has references to the static variables containing the network topolgy used in the algorithms.
+* **application.conf** - This file has references to the static variables containing the network topolgy used in the algorithms.
 
-* **test/src** - Package containing test unit tests for all algorithms.
+* **src/test** - Package containing test unit tests for all algorithms.
 
 ## How to run project
 ### From Intellij IDE
