@@ -3,12 +3,11 @@ package main.algorithms
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.Logger
 import main.processes.ChandyLamportProcess
-import main.utility.{ApplicationProperties, InitiateSnapshot, ProcessRecord, SendMessage, SystemSnapshot, TopologyReader}
+import main.utility._
 
 import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.io.Source
 import scala.concurrent.duration._
+import scala.io.Source
 import scala.util.Random
 
 object ChandyLamportAlgorithm {
@@ -38,6 +37,9 @@ object ChandyLamportAlgorithm {
     val filename = ApplicationProperties.snapshotInputFile
     val topologyLines = Source.fromFile(filename).getLines().toList
 
+    // Create ChandyLamportProcess actors based on the process configuration
+    // Each process actor is created with its ID, list of neighbors, and a boolean that indicates if snapshot was taken
+    // The created actors are stored in a map with their ID as the key
     val processConfig: Map[String, List[String]] = TopologyReader.readTopology(filename)
 
     processConfig.foreach { case (id, neighbors) =>

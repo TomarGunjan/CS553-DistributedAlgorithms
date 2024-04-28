@@ -23,7 +23,7 @@ class chandyLamportTest extends TestKit(ActorSystem("SnapshotTest"))
 
       val processRecord = new ProcessRecord
 
-      val process0 = system.actorOf(Props(new ChandyLamportProcess(0, List(1, 2), false)), "process0")
+      val process0 = system.actorOf(Props(new ChandyLamportProcess(0, List(1, 2), false)), "process0_test1")
       val process1 = TestProbe()
       val process2 = TestProbe()
 
@@ -46,7 +46,7 @@ class chandyLamportTest extends TestKit(ActorSystem("SnapshotTest"))
 
       val processRecord = new ProcessRecord
 
-      val process0 = system.actorOf(Props(new ChandyLamportProcess(0, List(1), false)), "process0")
+      val process0 = system.actorOf(Props(new ChandyLamportProcess(0, List(1), false)), "process0_test2")
       val process1 = TestProbe()
 
       processRecord.map ++= Map(

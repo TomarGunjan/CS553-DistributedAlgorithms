@@ -6,6 +6,8 @@ import akka.event.slf4j.Logger
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
+// USED TO STORE SNAPSHOT DATA OF SYSTEM AND PRINT SNAPSHOT DATA OF PROCESS
+
 class MessageRecord(val process: ActorRef, val messageBody: String) {}
 class ProcessSnapshotData(val storedInteger: Int, val messageQueue: ListBuffer[MessageRecord]) {}
 
@@ -17,11 +19,8 @@ class SystemSnapshot {
     val sb = new StringBuilder()
     sb.append(s"SNAPSHOT PROCEDURE ENDED FOR process${processId}\n")
     sb.append(s"SAVED SNAPSHOT FOR process${processId} -->\n")
-//    log.info(s"Saved Snapshot for process${processId} -->")
     sb.append(s"STORED VALUE ==> ${systemSnapshot(processId).storedInteger}\n")
     sb.append(s"MESSAGE QUEUE ==>\n")
-//    log.info(s"Stored value ==> ${systemSnapshot(processId).storedInteger}")
-//    println(s"Message Queue ==>")
 
     if (systemSnapshot(processId).messageQueue.isEmpty) {
       sb.append("EMPTY")

@@ -3,8 +3,9 @@ package main.processes
 import akka.actor.{Actor, ActorRef, UnboundedStash}
 import akka.dispatch.UnboundedMessageQueueSemantics
 import akka.event.slf4j.Logger
+import main.algorithms.LaiYangAlgorithm
 import main.algorithms.LaiYangAlgorithm.{numberOfProcessesCompletingSnapshot, processRecord, systemSnapshot}
-import main.utility.{InitiateSnapshotActors, InitiateSnapshotWithMessageCount, MessageRecord, PerformActionWithTagPayload, ProcessSnapshotData, SendMessage}
+import main.utility._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -18,18 +19,15 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
   private var incomingChannelsRecorded = 0
 
   // TO STORE HOW MANY MESSAGES SENT/RECEIVED TO/FROM EACH NEIGHBOR
-  private val preSnapshotMessagesSent: mutable.Map[ActorRef, Int] = mutable.Map.empty
-  private val preSnapshotMessagesToReceive: mutable.Map[ActorRef, Int] = mutable.Map.empty
+  private var preSnapshotMessagesSent: mutable.Map[ActorRef, Int] = mutable.Map.empty
+  private var preSnapshotMessagesToReceive: mutable.Map[ActorRef, Int] = mutable.Map.empty
+
+  var isInitialized = false
 
   // INITIALIZES THE MAPS WITH KEY-VALUE PAIRS
   def init(): Unit = {
-    neighbors.foreach { key =>
-      preSnapshotMessagesSent += (processRecord.map(key) -> 0)
-    }
-
-    neighbors.foreach { key =>
-      preSnapshotMessagesToReceive += (processRecord.map(key) -> 0)
-    }
+    this.preSnapshotMessagesSent = LaiYangAlgorithm.MessageCountStore.preSnapshotMessagesSent(self)
+    this.preSnapshotMessagesToReceive = LaiYangAlgorithm.MessageCountStore.preSnapshotMessagesReceived(self)
   }
 
   override def postStop(): Unit = {
@@ -38,11 +36,13 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
 
   def receive: Receive = {
     case InitiateSnapshotActors =>
-      // THIS RUNS THE init() METHOD
       log.info(s"process${id} being initialized")
-      init()
     case InitiateSnapshotWithMessageCount(n, start) =>
       // start = false IMPLIES A CONTROL MESSAGE true MEANS THE PROCESS HAS INITIATED THE SNAPSHOT PROCESS BY ITSELF
+      if(!isInitialized) {
+        isInitialized = !isInitialized
+        init()
+      }
       if (!start) {
         // IF ALL PRE-SNAPSHOT MESSAGES HAVE BEEN RECEIVED FROM THE CHANNEL, WE STOP RECORDING
         val messagesToReceive = n + preSnapshotMessagesToReceive(sender)
@@ -71,10 +71,18 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
 
     // SENDS AN INCREMENT OR DECREMENT MESSAGE TO A RANDOM NEIGHBOR WITH A TAG
     case SendMessage(str) =>
+      if (!isInitialized) {
+        isInitialized = !isInitialized
+        init()
+      }
       val receiver = processRecord.map(neighbors(Random.nextInt(neighbors.length)))
       if (!snapshotTaken) preSnapshotMessagesSent += (receiver -> (preSnapshotMessagesSent(receiver) + 1))
       receiver ! PerformActionWithTagPayload(str, snapshotTaken)
     case PerformActionWithTagPayload(action, tag) =>
+      if (!isInitialized) {
+        isInitialized = !isInitialized
+        init()
+      }
       // PERFORM INCREMENT OR DECREMENT ON storedVariable DEPENDING ON
       if (action.equals("Increment")) {
         storedVariable += 1;

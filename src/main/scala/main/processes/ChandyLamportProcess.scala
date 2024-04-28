@@ -3,7 +3,7 @@ package main.processes
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.Logger
 import main.algorithms.ChandyLamportAlgorithm.{numberOfProcessesCompletingSnapshot, processRecord, systemSnapshot}
-import main.utility.{InitiateSnapshot, MessageRecord, PerformAction, ProcessSnapshotData, SendMessage}
+import main.utility._
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random

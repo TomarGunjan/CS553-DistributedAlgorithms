@@ -1,13 +1,11 @@
 package main.algorithms
 
-import akka.actor.{Actor, ActorRef, ActorSystem, Props, UnboundedStash}
-import akka.dispatch.UnboundedMessageQueueSemantics
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.slf4j.Logger
 import main.processes.LaiYangProcess
-import main.utility.{ApplicationProperties, InitiateSnapshotActors, InitiateSnapshotWithMessageCount, ProcessRecord, SendMessage, SystemSnapshot, TopologyReader}
+import main.utility._
 
+import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.io.Source
@@ -20,6 +18,13 @@ object LaiYangAlgorithm{
   var snapshotTaken = false
   var numberOfProcessesCompletingSnapshot = 0
 
+  // THIS OBJECT IS USED BY LAI-YANG ACTORS TO KEEP TRACK OF THE NUMBER OF MESSAGES RECEIVED AND SEND TO EACH NEIGHBOR
+  object MessageCountStore {
+    val preSnapshotMessagesSent: mutable.Map[ActorRef, mutable.Map[ActorRef, Int]] = mutable.Map.empty
+    val preSnapshotMessagesReceived: mutable.Map[ActorRef, mutable.Map[ActorRef, Int]] = mutable.Map.empty
+  }
+
+  // INIT UTILITY FUNCTION USED FOR TESTING PURPOSES
   def init(processRecord: ProcessRecord) {
     systemSnapshot = new SystemSnapshot()
     this.processRecord = processRecord
@@ -33,24 +38,45 @@ object LaiYangAlgorithm{
 
     val system = ActorSystem("LaiYang")
 
+    // Read the process configuration from the input file specified in ApplicationProperties
     val filename = ApplicationProperties.snapshotInputFile
     val topologyLines = Source.fromFile(filename).getLines().toList
 
+    // Create LaiYangProcess actors based on the process configuration
+    // Each process actor is created with its ID, list of neighbors, and a boolean that indicates if snapshot was taken
+    // The created actors are stored in a map with their ID as the key
     val processConfig: Map[String, List[String]] = TopologyReader.readTopology(filename)
 
     processConfig.foreach { case (id, neighbors) =>
       val process = system.actorOf(Props(new LaiYangProcess(id.toInt, neighbors.distinct.map(_.toInt), false)), s"process$id")
+      log.info(s"process$id created")
       processRecord.map += (id.toInt -> process)
     }
 
-    processRecord.map.foreach { case (key, value) =>
-      value ! InitiateSnapshotActors
+    // inserting key-value pairs in MessageCountStore maps
+    processConfig.foreach { case (id, neighbors) =>
+      val process = processRecord.map(id.toInt)
+
+      val preSnapshotMessagesSent: mutable.Map[ActorRef, Int] = mutable.Map.empty
+      neighbors.distinct.foreach { key =>
+        preSnapshotMessagesSent += (processRecord.map(key.toInt) -> 0)
+      }
+
+      MessageCountStore.preSnapshotMessagesSent += (process -> preSnapshotMessagesSent)
+
+      val preSnapshotMessagesReceived: mutable.Map[ActorRef, Int] = mutable.Map.empty
+      neighbors.distinct.foreach { key =>
+        preSnapshotMessagesReceived += (processRecord.map(key.toInt) -> 0)
+      }
+
+      MessageCountStore.preSnapshotMessagesReceived += (process -> preSnapshotMessagesReceived)
+
     }
+
 
     val keySeq = processRecord.map.keys.toSeq
 
-    Thread.sleep(100*processRecord.map.size)
-
+    // A WHILE LOOP TO SIMULATE THE WORKING OF A DISTRIBUTED SYSTEM
     while (numberOfProcessesCompletingSnapshot < processRecord.map.size) {
       val selectedKey = Random.nextInt(3)
       if (selectedKey == 0 && !snapshotTaken) {
@@ -64,6 +90,7 @@ object LaiYangAlgorithm{
       }
     }
 
+    // RESETTING AFTER THE ALGORITHM HAS TERMINATED
     numberOfProcessesCompletingSnapshot = 0
     snapshotTaken = false
 
