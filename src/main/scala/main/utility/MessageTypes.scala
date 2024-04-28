@@ -33,8 +33,5 @@ case object InitiateSnapshotActors extends MessageTypes
 case class InitiateSnapshotWithMessageCount(preSnapshotMessageCount: Int, start: Boolean) extends MessageTypes
 case class PerformActionWithTagPayload(str: String, snapshotTaken: Boolean) extends MessageTypes
 
-
-// Add the following case classes to the MessageTypes.scala file
-
 case class ElectionMessage(uid: Int) extends MessageTypes
 case class ElectedMessage(uid: Int) extends MessageTypes

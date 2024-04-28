@@ -29,20 +29,22 @@ object EchoAlgorithm extends MessageTypes {
 
     // Load the topology file path from the application configuration
     val filename = ApplicationProperties.echoInputFile
-    val processConfig: Map[String, List[String]] = TopologyReader.readTopology(filename)
+    val processConfig: Map[Int, List[Int]] = TopologyReader.readTopology(filename).map {
+      case (id, neighbors) => (id.toInt, neighbors.map(_.toInt))
+    }
 
-    // Get all process IDs and convert them to integers
-    val allProcessIds = processConfig.keys.map(_.toInt).toList
+    // Get all process IDs
+    val allProcessIds = processConfig.keys.toList
     // Randomly select the initiator process ID from the list of process IDs
     val randomInitiatorId = Random.shuffle(allProcessIds).head
     log.info(s"Randomly selected initiator ID: $randomInitiatorId")
 
     // Create EchoProcess actors based on the process configuration
     processConfig.foreach { case (id, neighbors) =>
-      val isInitiator = id.toInt == randomInitiatorId
-      val processActor = system.actorOf(Props(new EchoProcess(id, neighbors, isInitiator, processRecord)), id)
+      val isInitiator = id == randomInitiatorId
+      val processActor = system.actorOf(Props(new EchoProcess(id, neighbors, isInitiator, processRecord)), id.toString)
       log.info(s"Created EchoProcess actor for Process $id with neighbors: ${neighbors.mkString(", ")}, Actor: $processActor")
-      processRecord.map += (id.toInt -> processActor)
+      processRecord.map += (id -> processActor)
     }
 
     // Notify all processes that they are created and can start the algorithm
