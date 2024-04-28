@@ -160,8 +160,8 @@ Below is a sample output from the Bracha Toueg Algorithm. Logs from [SLF4J](http
 ## Appendix - Algorithm Descriptions
 ### 1. Snapshot Algorithms 
 The Snapshot Algorithm, refers to the process of capturing a consistent global state of the system at a specific point in time. It allows processes to record their local states and messages exchanged, facilitating the observation of the distributed system's behavior for debugging and analysis purposes.
-* Chandy-Lamport Algorithm: The Chandy–Lamport algorithm is a snapshot algorithm that is used in distributed systems for recording a consistent global state of an asynchronous system.
-* Lai-Yang Algorithm: The Lai-Yang Algorithm is a snapshot algorithm used for taking consistent global snapshots of a distributed system. This algorithm does not rely on the FIFO property of channels.
+* Chandy-Lamport Algorithm: A snapshot algorithm that is used in distributed systems for recording a consistent global state of an asynchronous system.
+* Lai-Yang Algorithm: A snapshot algorithm used for taking consistent global snapshots of a distributed system. This algorithm does not enforce the FIFO property of channels.
 
 
 ### 2. Wave Algorithm
@@ -173,7 +173,7 @@ A wave algorithm is a type of distributed algorithm used for propagating informa
 
 ### 3. Deadlock Detection
 Deadlock detection is a fundamental problem in distributed computing, which requires determining a cyclic dependency within a running system.
-* Bracha-Toueg Algorithm: The Bracha-Toueg Algorithm is employed for deadlock detection in distributed systems. It monitors resource allocation and process interactions to detect potential deadlocks and take corrective actions to resolve them. By proactively identifying and mitigating deadlocks, this algorithm enhances the reliability and availability of distributed systems.
+* Bracha-Toueg Algorithm: Employed for deadlock detection in distributed systems. It monitors resource allocation and process interactions to detect potential deadlocks and take corrective actions to resolve them. By proactively identifying and mitigating deadlocks, this algorithm enhances the reliability and availability of distributed systems.
 
 ## Additonal Implementations
 ### 4. Election Algorithm
