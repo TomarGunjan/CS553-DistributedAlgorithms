@@ -1,7 +1,7 @@
 # CS553 Distributed Algorithms Project
 
 ## Overview
-This repository showcases the implementation of a variety distributed algorithms, such as Snapshot, Wave, and Deadlock Detection Algorithms. It executes a menu driven program for six distributed algorithms on graphs created by [NetGameSim](https://github.com/0x1DOCD00D/NetGameSim?tab=readme-ov-file) and some special topologies.
+This repository showcases the implementation of a variety of distributed algorithms, such as Snapshot, Wave, Deadlock Detection and Election Algorithms. It executes a menu driven program for eight distributed algorithms on graphs created by [NetGameSim](https://github.com/0x1DOCD00D/NetGameSim?tab=readme-ov-file) and some special topologies like ring.
 
 ## Design Rationale
 The project has been modularized for code reusability and better readability. The project directory tree looks like this:
@@ -25,52 +25,61 @@ The project has been modularized for code reusability and better readability. Th
     │       └── main
     │           ├── Main.scala
     │           ├── algorithms
-    │           │   ├── BrachaTouegAlgorithm.scala
-    │           │   ├── ChandyLamportAlgorithm.scala
-    │           │   ├── EchoAlgorithm.scala
-    │           │   ├── LaiYangAlgorithm.scala
-    │           │   ├── TarrysAlgorithm.scala
-    │           │   └── TreeAlgorithm.scala
+    │           │   ├── BrachaTouegAlgorithm.scala
+    │           │   ├── ChandyLamportAlgorithm.scala
+    │           │   ├── ChangRobertsAlgorithm.scala
+    │           │   ├── EchoAlgorithm.scala
+    │           │   ├── FranklinAlgorithm.scala
+    │           │   ├── LaiYangAlgorithm.scala
+    │           │   ├── TarrysAlgorithm.scala
+    │           │   └── TreeAlgorithm.scala
     │           ├── processes
-    │           │   ├── BrachaTouegProcess.scala
-    │           │   ├── ChandyLamportProcess.scala
-    │           │   ├── EchoProcess.scala
-    │           │   ├── LaiYangProcess.scala
-    │           │   ├── TarryProcess.scala
-    │           │   └── TreeProcess.scala
+    │           │   ├── BrachaTouegProcess.scala
+    │           │   ├── ChandyLamportProcess.scala
+    │           │   ├── ChangRobertsProcess.scala
+    │           │   ├── EchoProcess.scala
+    │           │   ├── FranklinProcess.scala
+    │           │   ├── LaiYangProcess.scala
+    │           │   ├── TarryProcess.scala
+    │           │   └── TreeProcess.scala
     │           └── utility
-    │               ├── ApplicationProperties.scala
-    │               ├── MessageTypes.scala
-    │               ├── ProcessRecord.scala
-    │               ├── SnapshotUtils.scala
-    │               ├── Terminator.scala
-    │               └── TopologyReader.scala
+    │               ├── ApplicationProperties.scala
+    │               ├── FranklinOrchestrator.scala
+    │               ├── MessageTypes.scala
+    │               ├── ProcessRecord.scala
+    │               ├── SnapshotUtils.scala
+    │               ├── Terminator.scala
+    │               └── TopologyReader.scala
     └── test
         └── scala
-            ├── EchoTest.scala
-            ├── TarryTest.scala
-            ├── TreeTest.scala
-            ├── brachaTouegTest.scala
-            ├── chandyLamportTest.scala
-            └── laiYangTest.scala
+            ├── ChangRobertsTest.scala
+            ├── EchoTest.scala
+            ├── TarryTest.scala
+            ├── TreeTest.scala
+            ├── brachaTouegTest.scala
+            ├── chandyLamportTest.scala
+            ├── franklinTest.scala
+            └── laiYangTest.scala
 ```
 ### Project Component Description 
 
-* **Main.scala** - This is the entry point of the project. 
+* **Main.scala** - This is the entry point of the project.
 
 * **algorithms package** - Package containing all the specific algorithm trigger files. These files prepare test data, create Actor classes and trigger the initiators for the algorithms.
 
 * **processes package** - Package containing all the Actor logic required for algorithms. Algorithm package classes create instances of these Actor classes for running the algorithm.
 
 * **utility package** - Package containing utility and reusable code common for all algorithms.
-    * ApplicationProperties : This is a utility file to read properties from application.conf
+    * ApplicationProperties : This is a utility file to read properties from application.conf.
     * MessageTypes : This file has all the message types used by Actors.
-    * Terminator : A utility Actor class to help terminate Actor system when an algorithm has ended
+    * Terminator : A utility Actor class to help terminate Actor system when an algorithm has ended.
     * TopologyReader : A utility class to read network topology from test data files.
+    * FranklinOrchestrator: A utility class to manage rounds for Franklin's Algorithm.
+    * SnapshotUtils: A Utility class to store and log data for Snapshot Algorithms.
 
 * **Resources package** - Package containing static files containing Application.conf, and graph test data for creating network for running algorithms
 
-* **Application.conf** - This file has static values and data to be referenced by code.
+* **Application.conf** - This file has references to the static variables containing the network topolgy used in the algorithms.
 
 * **test/src** - Package containing test unit tests for all algorithms.
 
@@ -92,6 +101,9 @@ The project has been modularized for code reusability and better readability. Th
 
 * Step 4. Run Main.scala file
 
+>[!NOTE]
+> Navigate to src/test/scala and run the unit tests for each algorithm from the test files.
+
 ### From Terminal
 **Requirements:**
 1. Should have scala installed
@@ -107,18 +119,23 @@ Steps to Follow :
    ```
     sbt clean compile run
    ```
+>[!NOTE]
+> Run following command to execute the entire testing suite.
+>```
+>sbt test
+>```
    
 
 ## Test Data
-### Test Data Type 1
-Example of a perturbed graph generated by NetGameSim and visualzation of the same. This is being used for the Tree Algorithm.
+### Data Type - From NetGameSim
+Example of a perturbed graph generated by NetGameSim and visualzation of the same. This is being used for the Tree and Snapshot Algorithm.
 
 <p float="left">
   <img src="https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/54131539/4b2149c3-8bb6-47aa-9aca-a2647e43ee4c" width="500" />
   <img src="https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/54131539/5cdb8075-110e-4482-9652-b9398c6d08f5" width="350" /> 
 </p>
 
-### Test Data Type 2
+### Data Type - Manually Created Topology
 The ApplicationProperties file read configurations from application.conf file. The Algorithm code then creates network for running algorithm using this data.
 <p float="left">
 <img src="https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/26132783/7b2b817c-586a-435b-a18c-27a877a5ba8a" width="420" height="400" />
@@ -126,15 +143,13 @@ The ApplicationProperties file read configurations from application.conf file. T
 </p>
 
 
-
-
 ## Output
-This a menu driven project. On running the project the user is presented with options to run any algorithm or exit the application as shown below:
+This a menu driven program. On running the program the user is presented with a menu to to run any algorithm by selecting an option between 1-8 or 9 to exit the application as shown below.
 
-![image](https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/26132783/eff9d140-8dc2-48d0-831d-0cf5673c7544)
+<img width="300" alt="image" src="https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/54131539/fe67db0c-225d-4fc4-91f9-1b226c9c3bb9">
 
-
-User can provide any option between 1-6 for any algorithm and trigger it. Logs from [SLF4J](https://doc.akka.io/docs/akka/current/typed/logging.html#introduction) are used to describe progress of algorithm which can be followed on terminal.
+<br></br>
+Below is a sample output from the Bracha Toueg Algorithm. Logs from [SLF4J](https://doc.akka.io/docs/akka/current/typed/logging.html#introduction) are used to describe progress of algorithm which can be followed on the terminal.
 ![image](https://github.com/TomarGunjan/CS553-DistributedAlgorithms/assets/26132783/8d268912-a858-432d-85ad-a3dde822d2fc)
 
 ## References 
@@ -160,3 +175,8 @@ A wave algorithm is a type of distributed algorithm used for propagating informa
 Deadlock detection is a fundamental problem in distributed computing, which requires determining a cyclic dependency within a running system.
 * Bracha-Toueg Algorithm: The Bracha-Toueg Algorithm is employed for deadlock detection in distributed systems. It monitors resource allocation and process interactions to detect potential deadlocks and take corrective actions to resolve them. By proactively identifying and mitigating deadlocks, this algorithm enhances the reliability and availability of distributed systems.
 
+## Additonal Implementations
+### 4. Election Algorithm
+In an election algorithm, the processes in the network elect one process among them as their leader. The aim is usually to let the leader act as the organizer of some distributed task.
+* Chang Roberts Algorithm: Election algorithm for a directed ring which assumes that each process has a Unique Identification (UID). The idea is that only the message with the highest ID will complete the round trip, because every other message is stopped. 
+* Franklin's Algorithm: Requires an undirected ring, improves on the worst-case message complexity of the Chang-Roberts algorithm. In an election round, each active process compares its own ID with the IDs of its nearest active neighbors on both sides.
