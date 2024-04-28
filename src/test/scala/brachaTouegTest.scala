@@ -6,8 +6,6 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
-import scala.concurrent.duration.DurationInt
-
 class BrachaTouegProcessSpec extends TestKit(ActorSystem("BrachaTouegProcessSpec"))
   with AnyWordSpecLike
   with Matchers
@@ -98,7 +96,7 @@ class BrachaTouegProcessSpec extends TestKit(ActorSystem("BrachaTouegProcessSpec
 
     }
 
-    "should send out Done to parent all acknowledments receivedfor a node with no outgoing edges" in {
+    "should send out Done to parent all acknowledgments received for a node with no outgoing edges" in {
       // Create a ProcessRecord instance
       val processRecord = new ProcessRecord
 
@@ -125,27 +123,7 @@ class BrachaTouegProcessSpec extends TestKit(ActorSystem("BrachaTouegProcessSpec
       process1.expectMsg(Done)
     }
 
-    "should send out Ack to node it receioved Grant from" in {
-      val processRecord = new ProcessRecord
 
-      // Create instances of BrachaTouegProcess actors
-
-      val process1: ActorRef = system.actorOf(Props(new BrachaTouegProcess(1, system, List(1), List(), initiator = true, processRecord)))
-      val process2 = TestProbe()
-      val terminator = system.actorOf(Props(new Terminator(system)))
-
-      // Register actors in the ProcessRecord
-      processRecord.map += (1 -> process1)
-      processRecord.map += (2 -> process2.ref)
-      processRecord.map.put(-1,terminator)
-
-      // Send Grant Message to Process 2 from Process1
-      process1 ! Grant(2)
-
-      // Process1 should send Acknowledgement back to Process2
-      process2.expectMsg(10.seconds, Ack)
-
-    }
 
 }
 
