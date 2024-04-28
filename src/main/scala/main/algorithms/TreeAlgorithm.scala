@@ -3,7 +3,7 @@ package main.algorithms
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.Logger
 import main.processes.TreeProcess
-import main.utility.{Wave, MessageTypes, ProcessRecord, Terminator, ApplicationProperties, TopologyReader}
+import main.utility.{ApplicationProperties, MessageTypes, ProcessRecord, Terminator, TopologyReader, Wave}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

@@ -1,24 +1,22 @@
 package main.algorithms
 
-import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.Logger
 import com.typesafe.config.Config
 import main.processes.BrachaTouegProcess
-import main.utility.{ApplicationProperties, Initiate, ProcessRecord, TerminateSystem, Terminator}
+import main.utility.{ApplicationProperties, Initiate, ProcessRecord, Terminator}
 
-import java.util
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.language.postfixOps
 
 
-
-object BrachaTouegAlgorithm{
+object BrachaTouegAlgorithm {
   val logger = Logger(getClass.getName)
 
 
-  def main(){
+  def main() {
     //Running Scenario 1 with No Deadlock
     scenario1NoDeadlock()
     //Running scenario 2 with Deadlock
@@ -40,13 +38,13 @@ object BrachaTouegAlgorithm{
     val testData = ApplicationProperties.deadlockFreeData
 
     // loading test data
-    createTestData(testData,record, system)
+    createTestData(testData, record, system)
 
     logger.info("Test Data Loaded")
 
     // Loading Terminator process to initiate the trmination once algorithm is complete
     val terminator = system.actorOf(Props(new Terminator(system)))
-    record.map.put(-1,terminator)
+    record.map.put(-1, terminator)
 
     //  initiating algorithm
     logger.info("Initiating the Algorithm")
@@ -55,7 +53,6 @@ object BrachaTouegAlgorithm{
     Await.ready(system.whenTerminated, 30.seconds)
     logger.info("Terminating the algorithm")
   }
-
 
 
   def scenario2WithDeadlock(): Unit = {
@@ -71,13 +68,13 @@ object BrachaTouegAlgorithm{
     val testData = ApplicationProperties.deadlockData
 
     // loading test data
-    createTestData(testData,record, system)
+    createTestData(testData, record, system)
 
     logger.info("Test Data Loaded")
 
     // Loading Terminator process to initiate the trmination once algorithm is complete
     val terminator = system.actorOf(Props(new Terminator(system)))
-    record.map.put(-1,terminator)
+    record.map.put(-1, terminator)
 
     //  initiating algorithm
     logger.info("Initiating the Algorithm")
@@ -88,14 +85,13 @@ object BrachaTouegAlgorithm{
   }
 
 
-
-//Utility function to load test data
-  def createTestData(data : Config, record : ProcessRecord, system : ActorSystem ): Unit = {
-      for(nodeData:Config<-data.getConfigList("nodeData").asScala.toList){
-        val id = nodeData.getInt("Node")
-        val Process = system.actorOf(Props(new BrachaTouegProcess(nodeData.getInt("Node"), system, nodeData.getIntList("Out").asScala.toList,nodeData.getIntList("In").asScala.toList, id==data.getInt("initiator"), record )), name = "process"+ id)
-        record.map.put(id, Process);
-      }
+  //Utility function to load test data
+  def createTestData(data: Config, record: ProcessRecord, system: ActorSystem): Unit = {
+    for (nodeData: Config <- data.getConfigList("nodeData").asScala.toList) {
+      val id = nodeData.getInt("Node")
+      val Process = system.actorOf(Props(new BrachaTouegProcess(nodeData.getInt("Node"), system, nodeData.getIntList("Out").asScala.toList, nodeData.getIntList("In").asScala.toList, id == data.getInt("initiator"), record)), name = "process" + id)
+      record.map.put(id, Process);
+    }
 
   }
 

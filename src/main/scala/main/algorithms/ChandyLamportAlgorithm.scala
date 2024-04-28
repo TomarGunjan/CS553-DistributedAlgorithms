@@ -12,8 +12,8 @@ import scala.util.Random
 
 object ChandyLamportAlgorithm {
 
-  var systemSnapshot:SystemSnapshot = null
-  var processRecord:ProcessRecord = null
+  var systemSnapshot: SystemSnapshot = null
+  var processRecord: ProcessRecord = null
   var snapshotTaken = false
   var numberOfProcessesCompletingSnapshot = 0
 

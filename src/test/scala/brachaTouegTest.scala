@@ -143,7 +143,7 @@ class BrachaTouegProcessSpec extends TestKit(ActorSystem("BrachaTouegProcessSpec
       process1 ! Grant(2)
 
       // Process1 should send Acknowledgement back to Process2
-      process2.expectMsg(Ack)
+      process2.expectMsg(10.seconds, Ack)
 
     }
 

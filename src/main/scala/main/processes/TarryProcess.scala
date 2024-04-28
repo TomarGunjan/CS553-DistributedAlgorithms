@@ -2,7 +2,7 @@ package main.processes
 
 import akka.actor.Actor
 import akka.event.slf4j.Logger
-import main.utility.{InitiateTarry, TarryProbe, TerminateTarry, MessageTypes, ProcessRecord}
+import main.utility.{InitiateTarry, ProcessRecord, TarryProbe, TerminateTarry}
 
 import scala.collection.mutable
 

@@ -8,7 +8,7 @@ import main.utility._
  * Actor representing a process in the Echo algorithm.
  *
  * @param id            The unique identifier of the process.
- * @param neighbor     The list of neighboring process IDs.
+ * @param neighbor      The list of neighboring process IDs.
  * @param processRecord The ProcessRecord instance for storing process references.
  */
 class ChangRobertsProcess(val id: Int, val uid: Int, val neighbor: Int, val system: ActorSystem, val processRecord: ProcessRecord) extends Actor {

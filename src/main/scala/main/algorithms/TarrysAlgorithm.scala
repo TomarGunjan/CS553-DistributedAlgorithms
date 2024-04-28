@@ -3,7 +3,7 @@ package main.algorithms
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.Logger
 import main.processes.TarryProcess
-import main.utility.{InitiateTarry, MessageTypes, ProcessRecord, Terminator, TopologyReader, ApplicationProperties}
+import main.utility.{ApplicationProperties, InitiateTarry, MessageTypes, ProcessRecord, Terminator, TopologyReader}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

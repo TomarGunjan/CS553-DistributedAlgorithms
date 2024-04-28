@@ -2,7 +2,7 @@ package main.processes
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.Logger
-import main.utility.{Decide, Info, Wave, TreeTerminate, MessageTypes, ProcessRecord}
+import main.utility._
 
 /**
  * Actor representing a process in the tree algorithm.

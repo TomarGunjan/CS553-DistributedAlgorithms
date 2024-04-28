@@ -3,6 +3,7 @@ package main.processes
 import akka.actor.{Actor, ActorSystem}
 import akka.event.slf4j.Logger
 import main.utility._
+
 import scala.math.max
 
 // FranklinProcess class representing a process in the Franklin election algorithm

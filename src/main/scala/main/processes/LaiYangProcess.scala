@@ -39,7 +39,7 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
       log.info(s"process${id} being initialized")
     case InitiateSnapshotWithMessageCount(n, start) =>
       // start = false IMPLIES A CONTROL MESSAGE true MEANS THE PROCESS HAS INITIATED THE SNAPSHOT PROCESS BY ITSELF
-      if(!isInitialized) {
+      if (!isInitialized) {
         isInitialized = !isInitialized
         init()
       }
@@ -86,10 +86,10 @@ class LaiYangProcess(val id: Int, val neighbors: List[Int], var snapshotTaken: B
       // PERFORM INCREMENT OR DECREMENT ON storedVariable DEPENDING ON
       if (action.equals("Increment")) {
         storedVariable += 1;
-//        log.info(s"Increment message sent from ${sender.path.name}... value of storedVariable in ${self.path.name} is ${storedVariable}")
+        //        log.info(s"Increment message sent from ${sender.path.name}... value of storedVariable in ${self.path.name} is ${storedVariable}")
       } else if (action.equals("decrement")) {
         storedVariable -= 1;
-//        log.info(s"Decrement message sent from ${sender.path.name}... value of storedVariable in ${self.path.name} is ${storedVariable}")
+        //        log.info(s"Decrement message sent from ${sender.path.name}... value of storedVariable in ${self.path.name} is ${storedVariable}")
       }
 
       // IF TAG IS FALSE, WE CHECK IF WE HAVE RECEIVED ALL FALSE MESSAGES FROM THE CHANNEL, AND STOP RECORDING IF WE HAVE

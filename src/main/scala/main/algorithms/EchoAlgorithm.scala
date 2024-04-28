@@ -3,7 +3,7 @@ package main.algorithms
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.Logger
 import main.processes.EchoProcess
-import main.utility.{MessageTypes, Terminator, ApplicationProperties, TopologyReader, AllProcessesCreated, ProcessRecord}
+import main.utility.{AllProcessesCreated, ApplicationProperties, MessageTypes, ProcessRecord, Terminator, TopologyReader}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.Random
 
-object LaiYangAlgorithm{
+object LaiYangAlgorithm {
 
   var systemSnapshot: SystemSnapshot = null
   var processRecord: ProcessRecord = null
