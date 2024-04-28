@@ -3,14 +3,14 @@ package main.algorithms
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.Logger
 import com.typesafe.config.Config
-import main.processes.{ChangRobertsProcess, FranklinProcess}
+import main.processes.{FranklinProcess}
 import main.utility.{ApplicationProperties, Initiate, FranklinOrchestrator, ProcessRecord, Terminator}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
-import scala.jdk.CollectionConverters.ListHasAsScala
+
 import scala.language.postfixOps
-import scala.util.Random
+
 
 /**
  * Object representing Franklin algorithm.
@@ -37,6 +37,9 @@ object FranklinAlgorithm {
     //Initiating algorithm
     logger.info("Initiating Orchestrator for starting algorithm")
     record.map.get(-2).get ! Initiate
+
+    Await.ready(system.whenTerminated, 30.seconds)
+    logger.info("Terminating the algorithm")
 
   }
 
